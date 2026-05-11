@@ -459,6 +459,53 @@ summarize_groups <- function(event_df, configured_groups) {
   do.call(rbind, rows)
 }
 
+plot_crossing_group_summary <- function(grouped_summary, threshold, output_path) {
+  plot_df <- grouped_summary[grouped_summary$opportunities > 0, , drop = FALSE]
+  if (nrow(plot_df) == 0L) {
+    return(invisible(NULL))
+  }
+
+  labels <- plot_df$crossing_group
+  x <- seq_len(nrow(plot_df))
+  win_rate <- plot_df$win_rate
+  entry_price <- plot_df$avg_entry_price
+  y_min <- min(c(win_rate, entry_price), na.rm = TRUE)
+  y_max <- max(c(win_rate, entry_price), na.rm = TRUE)
+  if (!is.finite(y_min) || !is.finite(y_max) || y_min == y_max) {
+    y_min <- 0.85
+    y_max <- 0.95
+  }
+
+  png(output_path, width = 1400, height = 800, res = 150)
+  on.exit(dev.off(), add = TRUE)
+  par(mar = c(8, 5, 4, 2) + 0.1)
+
+  plot(
+    x,
+    win_rate,
+    type = "b",
+    pch = 19,
+    lwd = 2,
+    col = "#1f77b4",
+    xaxt = "n",
+    xlab = "Nth-crossing bucket",
+    ylab = "Rate / price",
+    main = sprintf("Nth-crossing %s: win rate vs entry price", paste0(round(threshold * 100), "%")),
+    ylim = c(y_min, y_max)
+  )
+  lines(x, entry_price, type = "b", pch = 17, lwd = 2, col = "#d62728")
+  axis(1, at = x, labels = labels, las = 2)
+  legend(
+    "topright",
+    legend = c("Win rate", "Avg entry price"),
+    col = c("#1f77b4", "#d62728"),
+    lty = 1,
+    pch = c(19, 17),
+    bty = "n"
+  )
+  grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
+}
+
 main <- function(
   data_dir = NULL,
   n = NULL,
@@ -538,11 +585,13 @@ main <- function(
   grouped_path <- file.path(output_dir, "crossing_group_summary.csv")
   overall_path <- file.path(output_dir, "overall_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
+  plot_path <- file.path(output_dir, "nth_crossing_winrate_vs_entryprice.png")
 
   write.csv(event_df, events_path, row.names = FALSE, na = "")
   write.csv(grouped_summary, grouped_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped)) data.frame() else skipped, skipped_path, row.names = FALSE, na = "")
+  plot_crossing_group_summary(grouped_summary, threshold = threshold, output_path = plot_path)
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
@@ -559,6 +608,7 @@ main <- function(
   cat("Wrote:", grouped_path, "\n")
   cat("Wrote:", overall_path, "\n")
   cat("Wrote:", skipped_path, "\n")
+  cat("Wrote:", plot_path, "\n")
 
   invisible(list(
     events = event_df,

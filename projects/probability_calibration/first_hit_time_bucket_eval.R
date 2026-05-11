@@ -443,6 +443,39 @@ summarize_buckets <- function(hit_df, bucket_breaks) {
   do.call(rbind, rows)
 }
 
+plot_first_hit_bucket_roi <- function(bucket_summary, threshold, output_path) {
+  roi_values <- bucket_summary$roi_on_cost
+  labels <- bucket_summary$time_bucket
+  x <- seq_len(nrow(bucket_summary))
+  y_min <- min(c(roi_values, 0), na.rm = TRUE)
+  y_max <- max(c(roi_values, 0), na.rm = TRUE)
+  if (!is.finite(y_min) || !is.finite(y_max) || y_min == y_max) {
+    y_min <- -0.01
+    y_max <- 0.01
+  }
+
+  png(output_path, width = 1400, height = 800, res = 150)
+  on.exit(dev.off(), add = TRUE)
+  par(mar = c(8, 5, 4, 2) + 0.1)
+
+  plot(
+    x,
+    roi_values,
+    type = "b",
+    pch = 19,
+    lwd = 2,
+    col = "#1f77b4",
+    xaxt = "n",
+    xlab = "First-hit time bucket",
+    ylab = "ROI on cost",
+    main = sprintf("First-hit %s ROI by time bucket", paste0(round(threshold * 100), "%")),
+    ylim = c(y_min, y_max)
+  )
+  axis(1, at = x, labels = labels, las = 2)
+  abline(h = 0, lty = 2, col = "gray50")
+  grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
+}
+
 main <- function(
   data_dir = NULL,
   n = NULL,
@@ -521,11 +554,13 @@ main <- function(
   bucket_summary_path <- file.path(output_dir, "first_hit_bucket_summary.csv")
   overall_summary_path <- file.path(output_dir, "overall_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
+  roi_plot_path <- file.path(output_dir, "first_hit_roi_by_time_bucket.png")
 
   write.csv(first_hits, first_hits_path, row.names = FALSE, na = "")
   write.csv(bucket_summary, bucket_summary_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_summary_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped)) data.frame() else skipped, skipped_path, row.names = FALSE, na = "")
+  plot_first_hit_bucket_roi(bucket_summary, threshold = threshold, output_path = roi_plot_path)
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
@@ -542,6 +577,7 @@ main <- function(
   cat("Wrote:", bucket_summary_path, "\n")
   cat("Wrote:", overall_summary_path, "\n")
   cat("Wrote:", skipped_path, "\n")
+  cat("Wrote:", roi_plot_path, "\n")
 
   invisible(list(
     first_hits = first_hits,
