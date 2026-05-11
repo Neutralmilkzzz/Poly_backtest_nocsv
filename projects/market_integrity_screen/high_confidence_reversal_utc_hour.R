@@ -5,14 +5,14 @@
 #
 # 研究问题：
 # “95% 以上翻盘主要出现在一天中的哪些 UTC 时间段？
-#  是否和美股开盘前后（通常约 13/14 UTC）更相关？”
+#  是否和美股常规交易时段（美东 9:30-16:00）更相关？”
 #
 # 输出：
 # - reversal_rounds.csv                  95% 翻盘轮次明细
 # - all_high_confidence_hits.csv         所有首次达到 95% 的轮次
 # - reversal_by_hit_utc_hour.csv         翻盘按 hit UTC 小时汇总
 # - all_hits_by_hit_utc_hour.csv         所有高置信度轮次按 hit UTC 小时汇总
-# - us_equity_open_window_summary.csv    美股开盘窗口 vs 其他时段
+# - us_equity_market_hours_summary.csv   美股常规时段 vs 其他时段
 # - reversal_by_hit_utc_hour.png         翻盘数 + 翻盘率图
 # ------------------------------------------------------------
 
@@ -296,14 +296,26 @@ first_high_confidence_hit <- function(df, threshold) {
   )
 }
 
-classify_us_open_window <- function(hour_utc) {
-  if (is.na(hour_utc)) {
+classify_us_market_hours <- function(timestamp_utc) {
+  if (is.na(timestamp_utc)) {
     return(NA_character_)
   }
-  if (hour_utc %in% c(13L, 14L)) {
-    return("us_open_window")
+
+  ny_time <- as.POSIXlt(timestamp_utc, tz = "America/New_York")
+  weekday <- ny_time$wday
+  if (is.na(weekday) || weekday %in% c(0L, 6L)) {
+    return("outside_market_hours")
   }
-  "other_hours"
+
+  minutes_since_midnight <- ny_time$hour * 60L + ny_time$min
+  session_start <- 9L * 60L + 30L
+  session_end <- 16L * 60L
+
+  if (minutes_since_midnight >= session_start && minutes_since_midnight < session_end) {
+    return("us_market_hours")
+  }
+
+  "outside_market_hours"
 }
 
 analyze_one_file <- function(csv_path, threshold, min_rows) {
@@ -344,7 +356,8 @@ analyze_one_file <- function(csv_path, threshold, min_rows) {
     round_start_utc_hour = start_hour,
     hit_timestamp_utc = format(hit$hit_timestamp, tz = "UTC", usetz = TRUE),
     hit_utc_hour = hit_hour,
-    us_open_window = classify_us_open_window(hit_hour),
+    hit_timestamp_ny = format(hit$hit_timestamp, tz = "America/New_York", usetz = TRUE),
+    us_market_session = classify_us_market_hours(hit$hit_timestamp),
     hit_elapsed = hit$hit_elapsed,
     hit_side = hit$side,
     hit_prob = hit$implied_prob,
@@ -381,13 +394,13 @@ summarize_by_hour <- function(all_hits) {
   do.call(rbind, rows)
 }
 
-summarize_open_window <- function(all_hits) {
-  groups <- c("us_open_window", "other_hours")
+summarize_market_hours <- function(all_hits) {
+  groups <- c("us_market_hours", "outside_market_hours")
   rows <- lapply(groups, function(group_name) {
-    part <- all_hits[all_hits$us_open_window == group_name, , drop = FALSE]
+    part <- all_hits[all_hits$us_market_session == group_name, , drop = FALSE]
     reversals <- part[part$is_reversal == 1L, , drop = FALSE]
     data.frame(
-      window = group_name,
+      market_session = group_name,
       all_high_conf_hits = nrow(part),
       reversal_rounds = nrow(reversals),
       reversal_rate = if (nrow(part) > 0) nrow(reversals) / nrow(part) else NA_real_,
@@ -434,15 +447,14 @@ plot_hour_summary <- function(hour_summary, threshold, output_path) {
   )
   axis(4, col.axis = "#d62728", col = "#d62728")
   mtext("Reversal rate within hour", side = 4, line = 3, col = "#d62728")
-  abline(v = c(14, 15), lty = 2, col = "gray50")
   legend(
     "topright",
-    legend = c("Reversal count", "Reversal rate", "US open window marker"),
-    fill = c("#9ecae1", NA, NA),
-    border = c(NA, NA, NA),
-    lty = c(NA, 1, 2),
-    pch = c(NA, 19, NA),
-    col = c(NA, "#d62728", "gray50"),
+    legend = c("Reversal count", "Reversal rate"),
+    fill = c("#9ecae1", NA),
+    border = c(NA, NA),
+    lty = c(NA, 1),
+    pch = c(NA, 19),
+    col = c(NA, "#d62728"),
     bty = "n"
   )
 }
@@ -501,14 +513,14 @@ main <- function(
 
   reversal_rounds <- all_hits[all_hits$is_reversal == 1L, , drop = FALSE]
   hour_summary <- summarize_by_hour(all_hits)
-  open_window_summary <- summarize_open_window(all_hits)
+  market_hours_summary <- summarize_market_hours(all_hits)
 
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
   reversal_path <- file.path(output_dir, "reversal_rounds.csv")
   all_hits_path <- file.path(output_dir, "all_high_confidence_hits.csv")
   hour_summary_path <- file.path(output_dir, "reversal_by_hit_utc_hour.csv")
   all_hits_hour_path <- file.path(output_dir, "all_hits_by_hit_utc_hour.csv")
-  open_window_path <- file.path(output_dir, "us_equity_open_window_summary.csv")
+  market_hours_path <- file.path(output_dir, "us_equity_market_hours_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
   plot_path <- file.path(output_dir, "reversal_by_hit_utc_hour.png")
 
@@ -516,7 +528,7 @@ main <- function(
   write.csv(all_hits, all_hits_path, row.names = FALSE, na = "")
   write.csv(hour_summary, hour_summary_path, row.names = FALSE, na = "")
   write.csv(data.frame(hit_utc_hour = 0:23, all_high_conf_hits = hour_summary$all_high_conf_hits, stringsAsFactors = FALSE), all_hits_hour_path, row.names = FALSE, na = "")
-  write.csv(open_window_summary, open_window_path, row.names = FALSE, na = "")
+  write.csv(market_hours_summary, market_hours_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped)) data.frame() else skipped, skipped_path, row.names = FALSE, na = "")
   plot_hour_summary(hour_summary, threshold = threshold, output_path = plot_path)
 
@@ -534,14 +546,14 @@ main <- function(
   ), row.names = FALSE)
   cat("\nUTC hour summary:\n")
   print(hour_summary, row.names = FALSE)
-  cat("\nUS equity open window summary:\n")
-  print(open_window_summary, row.names = FALSE)
+  cat("\nUS equity market-hours summary:\n")
+  print(market_hours_summary, row.names = FALSE)
 
   cat("\nWrote:", reversal_path, "\n")
   cat("Wrote:", all_hits_path, "\n")
   cat("Wrote:", hour_summary_path, "\n")
   cat("Wrote:", all_hits_hour_path, "\n")
-  cat("Wrote:", open_window_path, "\n")
+  cat("Wrote:", market_hours_path, "\n")
   cat("Wrote:", skipped_path, "\n")
   cat("Wrote:", plot_path, "\n")
 
@@ -549,7 +561,7 @@ main <- function(
     all_hits = all_hits,
     reversal_rounds = reversal_rounds,
     hour_summary = hour_summary,
-    open_window_summary = open_window_summary,
+    market_hours_summary = market_hours_summary,
     skipped = skipped
   ))
 }
