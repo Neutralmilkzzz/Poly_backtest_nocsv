@@ -487,6 +487,82 @@ summarize_mismatch_types_by_checkpoint <- function(df, checkpoint_seconds) {
   do.call(rbind, rows)
 }
 
+plot_bucket_probability_vs_winrate <- function(bucket_summary, output_path) {
+  plot_df <- bucket_summary[bucket_summary$rounds > 0, , drop = FALSE]
+  if (nrow(plot_df) == 0L) {
+    return(invisible(NULL))
+  }
+
+  plot_df$label <- paste0(plot_df$checkpoint_seconds, "s\n", plot_df$bucket_type)
+  values <- rbind(plot_df$avg_odds_side_prob, plot_df$actual_odds_side_win_rate)
+  colnames(values) <- plot_df$label
+
+  png(output_path, width = 2200, height = 1000, res = 160)
+  on.exit(dev.off(), add = TRUE)
+  par(mar = c(10, 5, 4, 2) + 0.1)
+
+  mids <- barplot(
+    values,
+    beside = TRUE,
+    col = c("#9ecae1", "#d62728"),
+    border = NA,
+    las = 2,
+    ylim = c(0, 1),
+    ylab = "Probability / realized win rate",
+    main = "Odds-side implied probability vs realized win rate"
+  )
+  axis(1, at = colMeans(matrix(mids, nrow = 2)), labels = plot_df$label, las = 2, tick = FALSE)
+  legend(
+    "topleft",
+    legend = c("Avg odds-side probability", "Actual odds-side win rate"),
+    fill = c("#9ecae1", "#d62728"),
+    bty = "n"
+  )
+  grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
+}
+
+plot_mismatch_probability_vs_winrate <- function(bucket_summary, output_path) {
+  plot_df <- bucket_summary[bucket_summary$rounds > 0 & bucket_summary$relation == "mismatch", , drop = FALSE]
+  if (nrow(plot_df) == 0L) {
+    return(invisible(NULL))
+  }
+
+  mismatch_order <- c("btc_up__odds_down", "btc_down__odds_up")
+  ordered_parts <- lapply(unique(plot_df$checkpoint_seconds), function(cp) {
+    chunk <- plot_df[plot_df$checkpoint_seconds == cp, , drop = FALSE]
+    chunk$bucket_type <- factor(chunk$bucket_type, levels = mismatch_order)
+    chunk <- chunk[order(chunk$bucket_type), , drop = FALSE]
+    chunk
+  })
+  plot_df <- do.call(rbind, ordered_parts)
+  plot_df$label <- paste0(plot_df$checkpoint_seconds, "s\n", plot_df$bucket_type)
+  values <- rbind(plot_df$avg_odds_side_prob, plot_df$actual_odds_side_win_rate)
+  colnames(values) <- plot_df$label
+
+  png(output_path, width = 1800, height = 900, res = 160)
+  on.exit(dev.off(), add = TRUE)
+  par(mar = c(10, 5, 4, 2) + 0.1)
+
+  mids <- barplot(
+    values,
+    beside = TRUE,
+    col = c("#9ecae1", "#d62728"),
+    border = NA,
+    las = 2,
+    ylim = c(0, 1),
+    ylab = "Probability / realized win rate",
+    main = "Mismatch buckets: implied probability vs realized win rate"
+  )
+  axis(1, at = colMeans(matrix(mids, nrow = 2)), labels = plot_df$label, las = 2, tick = FALSE)
+  legend(
+    "topleft",
+    legend = c("Avg odds-side probability", "Actual odds-side win rate"),
+    fill = c("#9ecae1", "#d62728"),
+    bty = "n"
+  )
+  grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
+}
+
 main <- function(
   data_dir = NULL,
   n = NULL,
@@ -555,6 +631,8 @@ main <- function(
   alignment_path <- file.path(output_dir, "alignment_summary.csv")
   mismatch_type_path <- file.path(output_dir, "mismatch_type_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
+  plot_path <- file.path(output_dir, "bucket_probability_vs_winrate.png")
+  mismatch_plot_path <- file.path(output_dir, "mismatch_probability_vs_winrate.png")
 
   write.csv(classified_rounds, classified_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_path, row.names = FALSE, na = "")
@@ -562,6 +640,8 @@ main <- function(
   write.csv(alignment_summary, alignment_path, row.names = FALSE, na = "")
   write.csv(mismatch_type_summary, mismatch_type_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped_df)) data.frame() else skipped_df, skipped_path, row.names = FALSE, na = "")
+  plot_bucket_probability_vs_winrate(bucket_summary, plot_path)
+  plot_mismatch_probability_vs_winrate(bucket_summary, mismatch_plot_path)
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
@@ -584,6 +664,8 @@ main <- function(
   cat("Wrote:", alignment_path, "\n")
   cat("Wrote:", mismatch_type_path, "\n")
   cat("Wrote:", skipped_path, "\n")
+  cat("Wrote:", plot_path, "\n")
+  cat("Wrote:", mismatch_plot_path, "\n")
 
   invisible(list(
     classified_rounds = classified_rounds,

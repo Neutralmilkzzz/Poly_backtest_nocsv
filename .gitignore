@@ -22,6 +22,6 @@ logs/bot.pid
 Thumbs.db
 .DS_Store
 
-# Exclude CSV datasets
-*.csv
 
+# Never upload CSV datasets or generated CSV outputs
+*.csv
