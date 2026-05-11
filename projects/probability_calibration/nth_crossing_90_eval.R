@@ -13,11 +13,11 @@
 # 用法：
 #   Rscript projects/probability_calibration/nth_crossing_90_eval.R --data-dir data
 #   Rscript projects/probability_calibration/nth_crossing_90_eval.R --data-dir data --n 500 --threshold 0.9 --cores 24
-#   Rscript projects/probability_calibration/nth_crossing_90_eval.R --data-dir data --crossing-groups 1,2,3+
+#   Rscript projects/probability_calibration/nth_crossing_90_eval.R --data-dir data --crossing-groups 1,2,3,4,5,6,7,8,9,10+
 # ------------------------------------------------------------
 
 DEFAULT_THRESHOLD <- 0.9
-DEFAULT_GROUPS <- c("1", "2", "3+")
+DEFAULT_GROUPS <- c(as.character(1:9), "10+")
 
 get_script_dir <- function() {
   args_all <- commandArgs(trailingOnly = FALSE)
