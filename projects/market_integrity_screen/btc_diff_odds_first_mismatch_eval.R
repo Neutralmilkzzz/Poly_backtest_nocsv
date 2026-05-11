@@ -7,7 +7,7 @@
 # - btc_diff < 0 且 up_midpoint >= 0.5 + odds_edge  -> btc_down__odds_up
 #
 # 记录该第一次 mismatch 出现的时间、盘口、btc_diff 和最终赢家，
-# 然后统计到底是 BTC 方向更准，还是当时盘口更高的一侧更准。
+# 并做一个简单回测：第一次 mismatch 出现时，按当时盘口更高的一侧买 1 股。
 # ------------------------------------------------------------
 
 DEFAULT_ODDS_EDGE <- 0.05
@@ -265,6 +265,14 @@ analyze_one_file <- function(csv_path, odds_edge, min_rows) {
   up_mid <- raw_df$up_midpoint[i]
   down_mid <- if ("down_midpoint" %in% names(raw_df) && !is.na(raw_df$down_midpoint[i])) raw_df$down_midpoint[i] else 1 - up_mid
   mismatch_type <- paste0("btc_", first_mismatch$btc_direction, "__odds_", first_mismatch$odds_direction)
+  odds_ask_col <- if (identical(first_mismatch$odds_direction, "up")) "up_best_ask" else "down_best_ask"
+  odds_entry_price <- if (odds_ask_col %in% names(raw_df)) suppressWarnings(as.numeric(raw_df[[odds_ask_col]][i])) else NA_real_
+  if (is.na(odds_entry_price) || odds_entry_price <= 0 || odds_entry_price > 1) {
+    odds_entry_price <- if (identical(first_mismatch$odds_direction, "up")) up_mid else down_mid
+  }
+  odds_side_won <- as.integer(settlement_side == first_mismatch$odds_direction)
+  payout <- odds_side_won
+  pnl <- payout - odds_entry_price
 
   row <- data.frame(
     round_id = tools::file_path_sans_ext(basename(csv_path)),
@@ -280,7 +288,10 @@ analyze_one_file <- function(csv_path, odds_edge, min_rows) {
     mismatch_type = mismatch_type,
     final_winner = settlement_side,
     btc_side_won = as.integer(settlement_side == first_mismatch$btc_direction),
-    odds_side_won = as.integer(settlement_side == first_mismatch$odds_direction),
+    odds_side_won = odds_side_won,
+    odds_entry_price = odds_entry_price,
+    payout = payout,
+    pnl = pnl,
     stringsAsFactors = FALSE
   )
 
@@ -312,6 +323,41 @@ summarize_alignment <- function(df) {
   )
 }
 
+summarize_backtest <- function(df) {
+  if (nrow(df) == 0L) {
+    return(data.frame(
+      trades = integer(0),
+      wins = integer(0),
+      losses = integer(0),
+      win_rate = numeric(0),
+      avg_entry_price = numeric(0),
+      total_cost = numeric(0),
+      total_payout = numeric(0),
+      total_pnl = numeric(0),
+      avg_pnl_per_trade = numeric(0),
+      roi_on_cost = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  total_cost <- sum(df$odds_entry_price, na.rm = TRUE)
+  total_payout <- sum(df$payout, na.rm = TRUE)
+  total_pnl <- sum(df$pnl, na.rm = TRUE)
+  data.frame(
+    trades = nrow(df),
+    wins = sum(df$odds_side_won, na.rm = TRUE),
+    losses = sum(1L - df$odds_side_won, na.rm = TRUE),
+    win_rate = mean(df$odds_side_won, na.rm = TRUE),
+    avg_entry_price = mean(df$odds_entry_price, na.rm = TRUE),
+    total_cost = total_cost,
+    total_payout = total_payout,
+    total_pnl = total_pnl,
+    avg_pnl_per_trade = mean(df$pnl, na.rm = TRUE),
+    roi_on_cost = if (total_cost > 0) total_pnl / total_cost else NA_real_,
+    stringsAsFactors = FALSE
+  )
+}
+
 summarize_mismatch_types <- function(df) {
   if (nrow(df) == 0L) {
     return(data.frame(
@@ -322,6 +368,10 @@ summarize_mismatch_types <- function(df) {
       odds_side_wins = integer(0),
       btc_side_win_rate = numeric(0),
       odds_side_win_rate = numeric(0),
+      avg_entry_price = numeric(0),
+      total_pnl = numeric(0),
+      avg_pnl_per_trade = numeric(0),
+      roi_on_cost = numeric(0),
       stringsAsFactors = FALSE
     ))
   }
@@ -329,6 +379,8 @@ summarize_mismatch_types <- function(df) {
   split_rows <- split(df, df$mismatch_type)
   pieces <- lapply(names(split_rows), function(type_name) {
     chunk <- split_rows[[type_name]]
+    total_cost <- sum(chunk$odds_entry_price, na.rm = TRUE)
+    total_pnl <- sum(chunk$pnl, na.rm = TRUE)
     data.frame(
       mismatch_type = type_name,
       rounds = nrow(chunk),
@@ -337,6 +389,10 @@ summarize_mismatch_types <- function(df) {
       odds_side_wins = sum(chunk$odds_side_won, na.rm = TRUE),
       btc_side_win_rate = mean(chunk$btc_side_won, na.rm = TRUE),
       odds_side_win_rate = mean(chunk$odds_side_won, na.rm = TRUE),
+      avg_entry_price = mean(chunk$odds_entry_price, na.rm = TRUE),
+      total_pnl = total_pnl,
+      avg_pnl_per_trade = mean(chunk$pnl, na.rm = TRUE),
+      roi_on_cost = if (total_cost > 0) total_pnl / total_cost else NA_real_,
       stringsAsFactors = FALSE
     )
   })
@@ -401,17 +457,20 @@ main <- function(
     odds_side_win_rate = mean(mismatch_rounds$odds_side_won, na.rm = TRUE),
     stringsAsFactors = FALSE
   )
+  backtest_summary <- summarize_backtest(mismatch_rounds)
   alignment_summary <- summarize_alignment(mismatch_rounds)
   mismatch_type_summary <- summarize_mismatch_types(mismatch_rounds)
 
   mismatch_path <- file.path(output_dir, "first_mismatch_rounds.csv")
   overall_path <- file.path(output_dir, "overall_summary.csv")
+  backtest_path <- file.path(output_dir, "backtest_summary.csv")
   alignment_path <- file.path(output_dir, "alignment_summary.csv")
   mismatch_type_path <- file.path(output_dir, "mismatch_type_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
 
   write.csv(mismatch_rounds, mismatch_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_path, row.names = FALSE, na = "")
+  write.csv(backtest_summary, backtest_path, row.names = FALSE, na = "")
   write.csv(alignment_summary, alignment_path, row.names = FALSE, na = "")
   write.csv(mismatch_type_summary, mismatch_type_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped_df)) data.frame() else skipped_df, skipped_path, row.names = FALSE, na = "")
@@ -423,6 +482,8 @@ main <- function(
 
   cat("Overall summary:\n")
   print(overall_summary, row.names = FALSE)
+  cat("\nBacktest summary (buy 1 share on odds side at first mismatch):\n")
+  print(backtest_summary, row.names = FALSE)
   cat("\nAlignment summary:\n")
   print(alignment_summary, row.names = FALSE)
   cat("\nMismatch-type summary:\n")
@@ -430,6 +491,7 @@ main <- function(
 
   cat("\nWrote:", mismatch_path, "\n")
   cat("Wrote:", overall_path, "\n")
+  cat("Wrote:", backtest_path, "\n")
   cat("Wrote:", alignment_path, "\n")
   cat("Wrote:", mismatch_type_path, "\n")
   cat("Wrote:", skipped_path, "\n")
@@ -437,6 +499,7 @@ main <- function(
   invisible(list(
     mismatch_rounds = mismatch_rounds,
     overall_summary = overall_summary,
+    backtest_summary = backtest_summary,
     alignment_summary = alignment_summary,
     mismatch_type_summary = mismatch_type_summary,
     skipped = skipped_df
