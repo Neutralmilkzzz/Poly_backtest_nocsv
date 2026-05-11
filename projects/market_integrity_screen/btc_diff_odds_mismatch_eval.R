@@ -8,7 +8,7 @@
 # 并比较每一桶的买入概率（盘口高侧的 implied probability）和实际胜率。
 #
 # 默认口径：
-# - checkpoint_seconds = 30,60,90,120,150,180,210,240,270
+# - checkpoint_seconds = 10,20,30,...,270
 # - odds_edge = 0.05  （至少偏离 0.5 五个点）
 # - btc_diff 直接取该 checkpoint 之前最后一个非 NA 值
 #
@@ -21,7 +21,7 @@
 # - skipped_rounds.csv
 # ------------------------------------------------------------
 
-DEFAULT_CHECKPOINT_SECONDS <- c(30, 60, 90, 120, 150, 180, 210, 240, 270)
+DEFAULT_CHECKPOINT_SECONDS <- seq(10, 270, by = 10)
 DEFAULT_ODDS_EDGE <- 0.05
 
 get_script_dir <- function() {
@@ -487,6 +487,31 @@ summarize_mismatch_types_by_checkpoint <- function(df, checkpoint_seconds) {
   do.call(rbind, rows)
 }
 
+summarize_mismatch_edge_by_checkpoint <- function(bucket_summary) {
+  mismatch_df <- bucket_summary[bucket_summary$relation == "mismatch" & bucket_summary$rounds > 0, , drop = FALSE]
+  if (nrow(mismatch_df) == 0L) {
+    return(data.frame(
+      checkpoint_seconds = numeric(0),
+      bucket_type = character(0),
+      rounds = integer(0),
+      avg_odds_side_prob = numeric(0),
+      actual_odds_side_win_rate = numeric(0),
+      edge = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  data.frame(
+    checkpoint_seconds = mismatch_df$checkpoint_seconds,
+    bucket_type = mismatch_df$bucket_type,
+    rounds = mismatch_df$rounds,
+    avg_odds_side_prob = mismatch_df$avg_odds_side_prob,
+    actual_odds_side_win_rate = mismatch_df$actual_odds_side_win_rate,
+    edge = mismatch_df$actual_odds_side_win_rate - mismatch_df$avg_odds_side_prob,
+    stringsAsFactors = FALSE
+  )
+}
+
 plot_bucket_probability_vs_winrate <- function(bucket_summary, output_path) {
   plot_df <- bucket_summary[bucket_summary$rounds > 0, , drop = FALSE]
   if (nrow(plot_df) == 0L) {
@@ -563,6 +588,54 @@ plot_mismatch_probability_vs_winrate <- function(bucket_summary, output_path) {
   grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
 }
 
+plot_mismatch_edge_over_time <- function(edge_summary, output_path) {
+  if (nrow(edge_summary) == 0L) {
+    return(invisible(NULL))
+  }
+
+  mismatch_order <- c("btc_up__odds_down", "btc_down__odds_up")
+  colors <- c("btc_up__odds_down" = "#1f77b4", "btc_down__odds_up" = "#d62728")
+  png(output_path, width = 1600, height = 900, res = 160)
+  on.exit(dev.off(), add = TRUE)
+  par(mar = c(5, 5, 4, 2) + 0.1)
+
+  y_min <- min(c(edge_summary$edge, 0), na.rm = TRUE)
+  y_max <- max(c(edge_summary$edge, 0), na.rm = TRUE)
+  if (!is.finite(y_min) || !is.finite(y_max) || y_min == y_max) {
+    y_min <- -0.05
+    y_max <- 0.05
+  }
+
+  plot(
+    NA,
+    xlim = range(edge_summary$checkpoint_seconds, na.rm = TRUE),
+    ylim = c(y_min, y_max),
+    xlab = "Checkpoint seconds",
+    ylab = "Edge = actual win rate - implied probability",
+    main = "Mismatch edge over time"
+  )
+  abline(h = 0, lty = 2, col = "gray50")
+  grid(nx = NA, ny = NULL, col = "gray90", lty = "dotted")
+
+  for (bucket_name in mismatch_order) {
+    part <- edge_summary[edge_summary$bucket_type == bucket_name, , drop = FALSE]
+    if (nrow(part) == 0L) {
+      next
+    }
+    part <- part[order(part$checkpoint_seconds), , drop = FALSE]
+    lines(part$checkpoint_seconds, part$edge, type = "b", lwd = 2, pch = 19, col = colors[[bucket_name]])
+  }
+
+  legend(
+    "topleft",
+    legend = c("btc_up__odds_down", "btc_down__odds_up"),
+    col = unname(colors[mismatch_order]),
+    lty = 1,
+    pch = 19,
+    bty = "n"
+  )
+}
+
 main <- function(
   data_dir = NULL,
   n = NULL,
@@ -622,26 +695,31 @@ main <- function(
 
   overall_summary <- summarize_overall_by_checkpoint(classified_rounds, checkpoint_seconds)
   bucket_summary <- summarize_bucket_types_by_checkpoint(classified_rounds, checkpoint_seconds)
+  mismatch_edge_summary <- summarize_mismatch_edge_by_checkpoint(bucket_summary)
   alignment_summary <- summarize_alignment_by_checkpoint(classified_rounds, checkpoint_seconds)
   mismatch_type_summary <- summarize_mismatch_types_by_checkpoint(classified_rounds, checkpoint_seconds)
 
   classified_path <- file.path(output_dir, "classified_rounds.csv")
   overall_path <- file.path(output_dir, "overall_summary.csv")
   bucket_path <- file.path(output_dir, "bucket_summary.csv")
+  mismatch_edge_path <- file.path(output_dir, "mismatch_edge_summary.csv")
   alignment_path <- file.path(output_dir, "alignment_summary.csv")
   mismatch_type_path <- file.path(output_dir, "mismatch_type_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
   plot_path <- file.path(output_dir, "bucket_probability_vs_winrate.png")
   mismatch_plot_path <- file.path(output_dir, "mismatch_probability_vs_winrate.png")
+  mismatch_edge_plot_path <- file.path(output_dir, "mismatch_edge_over_time.png")
 
   write.csv(classified_rounds, classified_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_path, row.names = FALSE, na = "")
   write.csv(bucket_summary, bucket_path, row.names = FALSE, na = "")
+  write.csv(mismatch_edge_summary, mismatch_edge_path, row.names = FALSE, na = "")
   write.csv(alignment_summary, alignment_path, row.names = FALSE, na = "")
   write.csv(mismatch_type_summary, mismatch_type_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped_df)) data.frame() else skipped_df, skipped_path, row.names = FALSE, na = "")
   plot_bucket_probability_vs_winrate(bucket_summary, plot_path)
   plot_mismatch_probability_vs_winrate(bucket_summary, mismatch_plot_path)
+  plot_mismatch_edge_over_time(mismatch_edge_summary, mismatch_edge_plot_path)
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
@@ -653,6 +731,8 @@ main <- function(
   print(overall_summary, row.names = FALSE)
   cat("\nBucket summary:\n")
   print(bucket_summary, row.names = FALSE)
+  cat("\nMismatch edge summary:\n")
+  print(mismatch_edge_summary, row.names = FALSE)
   cat("\nAlignment summary:\n")
   print(alignment_summary, row.names = FALSE)
   cat("\nMismatch-type summary:\n")
@@ -661,16 +741,19 @@ main <- function(
   cat("\nWrote:", classified_path, "\n")
   cat("Wrote:", overall_path, "\n")
   cat("Wrote:", bucket_path, "\n")
+  cat("Wrote:", mismatch_edge_path, "\n")
   cat("Wrote:", alignment_path, "\n")
   cat("Wrote:", mismatch_type_path, "\n")
   cat("Wrote:", skipped_path, "\n")
   cat("Wrote:", plot_path, "\n")
   cat("Wrote:", mismatch_plot_path, "\n")
+  cat("Wrote:", mismatch_edge_plot_path, "\n")
 
   invisible(list(
     classified_rounds = classified_rounds,
     overall_summary = overall_summary,
     bucket_summary = bucket_summary,
+    mismatch_edge_summary = mismatch_edge_summary,
     alignment_summary = alignment_summary,
     mismatch_type_summary = mismatch_type_summary,
     skipped = skipped_df

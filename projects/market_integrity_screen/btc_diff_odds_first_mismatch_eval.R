@@ -11,6 +11,7 @@
 # ------------------------------------------------------------
 
 DEFAULT_ODDS_EDGE <- 0.05
+DEFAULT_MIN_ENTRY_ELAPSED <- 150
 
 get_script_dir <- function() {
   args_all <- commandArgs(trailingOnly = FALSE)
@@ -89,6 +90,7 @@ parse_args <- function(args) {
     data_dir = NULL,
     n = NULL,
     odds_edge = DEFAULT_ODDS_EDGE,
+    min_entry_elapsed = DEFAULT_MIN_ENTRY_ELAPSED,
     output_dir = NULL,
     cores = NULL,
     min_rows = 500L
@@ -110,6 +112,11 @@ parse_args <- function(args) {
     }
     if (arg == "--odds-edge" && i < length(args)) {
       opts$odds_edge <- as.numeric(args[i + 1L])
+      i <- i + 2L
+      next
+    }
+    if (arg == "--min-entry-elapsed" && i < length(args)) {
+      opts$min_entry_elapsed <- as.numeric(args[i + 1L])
       i <- i + 2L
       next
     }
@@ -197,7 +204,7 @@ determine_settlement_side <- function(df) {
   NA_character_
 }
 
-classify_first_mismatch <- function(df, odds_edge) {
+classify_first_mismatch <- function(df, odds_edge, min_entry_elapsed) {
   valid <- !is.na(df$btc_diff) & !is.na(df$up_midpoint)
   if (!any(valid)) {
     return(NULL)
@@ -205,6 +212,10 @@ classify_first_mismatch <- function(df, odds_edge) {
 
   idx <- which(valid)
   for (i in idx) {
+    elapsed_i <- suppressWarnings(as.numeric(df$elapsed[i]))
+    if (is.na(elapsed_i) || elapsed_i < min_entry_elapsed) {
+      next
+    }
     btc_diff_value <- suppressWarnings(as.numeric(df$btc_diff[i]))
     up_mid <- suppressWarnings(as.numeric(df$up_midpoint[i]))
     if (is.na(btc_diff_value) || is.na(up_mid) || btc_diff_value == 0) {
@@ -222,7 +233,7 @@ classify_first_mismatch <- function(df, odds_edge) {
   NULL
 }
 
-analyze_one_file <- function(csv_path, odds_edge, min_rows) {
+analyze_one_file <- function(csv_path, odds_edge, min_entry_elapsed, min_rows) {
   raw_df <- tryCatch(
     fast_read_csv(csv_path),
     error = function(e) NULL
@@ -256,9 +267,9 @@ analyze_one_file <- function(csv_path, odds_edge, min_rows) {
     return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "missing_settlement_label", stringsAsFactors = FALSE)))
   }
 
-  first_mismatch <- classify_first_mismatch(raw_df, odds_edge = odds_edge)
+  first_mismatch <- classify_first_mismatch(raw_df, odds_edge = odds_edge, min_entry_elapsed = min_entry_elapsed)
   if (is.null(first_mismatch)) {
-    return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "no_first_mismatch", stringsAsFactors = FALSE)))
+    return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "no_first_mismatch_after_min_elapsed", stringsAsFactors = FALSE)))
   }
 
   i <- first_mismatch$index
@@ -404,6 +415,7 @@ main <- function(
   data_dir = NULL,
   n = NULL,
   odds_edge = DEFAULT_ODDS_EDGE,
+  min_entry_elapsed = DEFAULT_MIN_ENTRY_ELAPSED,
   output_dir = NULL,
   cores = NULL,
   min_rows = 500L
@@ -412,6 +424,7 @@ main <- function(
   if (is.null(data_dir)) data_dir <- opts$data_dir
   if (is.null(n)) n <- opts$n
   if (missing(odds_edge) || is.null(odds_edge)) odds_edge <- opts$odds_edge
+  if (missing(min_entry_elapsed) || is.null(min_entry_elapsed)) min_entry_elapsed <- opts$min_entry_elapsed
   if (is.null(output_dir)) output_dir <- opts$output_dir
   if (is.null(cores)) cores <- opts$cores
   if (missing(min_rows) || is.null(min_rows)) min_rows <- opts$min_rows
@@ -438,6 +451,7 @@ main <- function(
     selected_files,
     analyze_one_file,
     odds_edge = odds_edge,
+    min_entry_elapsed = min_entry_elapsed,
     min_rows = min_rows,
     cores = use_cores
   )
@@ -479,6 +493,7 @@ main <- function(
   cat("Files used:", length(selected_files), "\n")
   cat("Worker processes:", use_cores, "\n")
   cat("Odds edge:", odds_edge, "\n\n")
+  cat("Min entry elapsed:", min_entry_elapsed, "\n\n")
 
   cat("Overall summary:\n")
   print(overall_summary, row.names = FALSE)
