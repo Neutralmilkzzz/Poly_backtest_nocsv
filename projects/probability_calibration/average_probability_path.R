@@ -47,6 +47,7 @@ get_script_dir <- function() {
 }
 
 source(file.path(get_script_dir(), "interactive_helpers.R"), local = TRUE)
+source(file.path(get_script_dir(), "performance_helpers.R"), local = TRUE)
 
 find_repo_root <- function(start_dir) {
   current <- normalizePath(start_dir, winslash = "/", mustWork = FALSE)
@@ -136,7 +137,7 @@ parse_timestamp_vector <- function(x) {
 
 load_round_path <- function(csv_path, sample_seconds = DEFAULT_SECONDS) {
   df <- tryCatch(
-    read.csv(csv_path, stringsAsFactors = FALSE),
+    fast_read_csv(csv_path),
     error = function(e) NULL
   )
   if (is.null(df) || !all(c("timestamp", "up_midpoint") %in% names(df))) {
@@ -260,7 +261,7 @@ default_artifacts_dir <- function() {
   file.path(repo_root, "projects", "probability_calibration", "artifacts")
 }
 
-main <- function(data_dir = NULL, n = 200, plot_path = NULL, sample_seconds = DEFAULT_SECONDS) {
+main <- function(data_dir = NULL, n = 200, plot_path = NULL, sample_seconds = DEFAULT_SECONDS, cores = NULL) {
   data_dir <- resolve_data_dir(data_dir)
   csv_files <- list.files(data_dir, pattern = "\\.csv$", full.names = TRUE)
   if (length(csv_files) == 0) {
@@ -273,11 +274,16 @@ main <- function(data_dir = NULL, n = 200, plot_path = NULL, sample_seconds = DE
   n_use <- min(as.integer(n), nrow(info))
   recent_files <- info$file[seq_len(n_use)]
 
-  path_rows <- do.call(rbind, lapply(recent_files, load_round_path, sample_seconds = sample_seconds))
+  use_cores <- resolve_cores(cores, n_tasks = length(recent_files))
+  path_rows <- do.call(
+    rbind,
+    parallel_map(recent_files, load_round_path, sample_seconds = sample_seconds, cores = use_cores)
+  )
   summary_df <- summarize_average_path(path_rows)
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", n_use, "\n\n")
+  cat("Worker processes:", use_cores, "\n\n")
   print(summary_df, row.names = FALSE)
 
   plot_average_path(summary_df, plot_path = plot_path)

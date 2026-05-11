@@ -54,6 +54,8 @@ get_script_dir <- function() {
   getwd()
 }
 
+source(file.path(get_script_dir(), "performance_helpers.R"), local = TRUE)
+
 find_repo_root <- function(start_dir) {
   current <- normalizePath(start_dir, winslash = "/", mustWork = FALSE)
 
@@ -99,7 +101,8 @@ parse_args <- function(args) {
     n = NULL,
     thresholds = DEFAULT_THRESHOLDS,
     output_dir = NULL,
-    include_all_hits = TRUE
+    include_all_hits = TRUE,
+    cores = NULL
   )
 
   i <- 1L
@@ -133,6 +136,12 @@ parse_args <- function(args) {
     if (arg == "--first-only") {
       opts$include_all_hits <- FALSE
       i <- i + 1L
+      next
+    }
+
+    if (arg == "--cores" && i < length(args)) {
+      opts$cores <- as.integer(args[i + 1L])
+      i <- i + 2L
       next
     }
 
@@ -419,7 +428,7 @@ extract_threshold_hits <- function(df, csv_path, threshold, first_only = FALSE, 
 
 analyze_one_file <- function(csv_path, thresholds = DEFAULT_THRESHOLDS, include_all_hits = TRUE) {
   raw_df <- tryCatch(
-    read.csv(csv_path, stringsAsFactors = FALSE),
+    fast_read_csv(csv_path),
     error = function(e) NULL
   )
 
@@ -526,9 +535,10 @@ main <- function(
   n = NULL,
   thresholds = DEFAULT_THRESHOLDS,
   output_dir = NULL,
-  include_all_hits = TRUE
+  include_all_hits = TRUE,
+  cores = NULL
 ) {
-  if (is.null(data_dir) || is.null(n) || missing(thresholds) || is.null(output_dir) || missing(include_all_hits)) {
+  if (is.null(data_dir) || is.null(n) || missing(thresholds) || is.null(output_dir) || missing(include_all_hits) || is.null(cores)) {
     opts <- parse_args(commandArgs(trailingOnly = TRUE))
     if (is.null(data_dir)) {
       data_dir <- opts$data_dir
@@ -544,6 +554,9 @@ main <- function(
     }
     if (missing(include_all_hits)) {
       include_all_hits <- opts$include_all_hits
+    }
+    if (is.null(cores)) {
+      cores <- opts$cores
     }
   }
 
@@ -564,7 +577,14 @@ main <- function(
   }
   selected_files <- info$file
 
-  analyzed <- lapply(selected_files, analyze_one_file, thresholds = thresholds, include_all_hits = include_all_hits)
+  use_cores <- resolve_cores(cores, n_tasks = length(selected_files))
+  analyzed <- parallel_map(
+    selected_files,
+    analyze_one_file,
+    thresholds = thresholds,
+    include_all_hits = include_all_hits,
+    cores = use_cores
+  )
   first_hits <- bind_rows_safe(lapply(analyzed, `[[`, "first_hits"), empty_hits_df())
   all_hits <- bind_rows_safe(lapply(analyzed, `[[`, "all_hits"), empty_hits_df())
   skipped <- bind_rows_safe(lapply(analyzed, `[[`, "skipped"), empty_skipped_df())
@@ -587,6 +607,7 @@ main <- function(
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
+  cat("Worker processes:", use_cores, "\n")
   cat("Thresholds:", paste0(round(thresholds * 100), "%", collapse = ", "), "\n\n")
 
   cat("First hit per round summary (closest to '每轮一到阈值就买一次'):\n")

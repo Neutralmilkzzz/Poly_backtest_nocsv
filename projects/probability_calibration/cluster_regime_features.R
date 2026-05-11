@@ -47,6 +47,7 @@ get_script_dir <- function() {
 }
 
 source(file.path(get_script_dir(), "interactive_helpers.R"), local = TRUE)
+source(file.path(get_script_dir(), "performance_helpers.R"), local = TRUE)
 
 find_repo_root <- function(start_dir) {
   current <- normalizePath(start_dir, winslash = "/", mustWork = FALSE)
@@ -148,7 +149,7 @@ determine_winner_side <- function(values) {
 }
 
 sample_round_series <- function(csv_path, sample_seconds = DEFAULT_SECONDS) {
-  df <- tryCatch(read.csv(csv_path, stringsAsFactors = FALSE), error = function(e) NULL)
+  df <- tryCatch(fast_read_csv(csv_path), error = function(e) NULL)
   if (is.null(df) || !all(c("timestamp", "up_midpoint") %in% names(df))) {
     return(NULL)
   }
@@ -314,8 +315,8 @@ normalize_feature_df <- function(feature_df, method = c("zscore", "minmax", "non
   out
 }
 
-build_feature_dataset <- function(csv_files, sample_seconds = DEFAULT_SECONDS) {
-  rows <- lapply(csv_files, function(csv_path) {
+build_feature_dataset <- function(csv_files, sample_seconds = DEFAULT_SECONDS, cores = NULL) {
+  rows <- parallel_map(csv_files, function(csv_path) {
     sampled_df <- sample_round_series(csv_path, sample_seconds = sample_seconds)
     if (is.null(sampled_df)) {
       return(NULL)
@@ -332,7 +333,7 @@ build_feature_dataset <- function(csv_files, sample_seconds = DEFAULT_SECONDS) {
       stringsAsFactors = FALSE,
       check.names = FALSE
     )
-  })
+  }, cores = cores)
 
   rows <- rows[!vapply(rows, is.null, logical(1))]
   if (length(rows) == 0) {
@@ -436,7 +437,8 @@ main <- function(data_dir = NULL,
                  ),
                  out_dir = NULL,
                  plot_path = NULL,
-                 seed = 42) {
+                 seed = 42,
+                 cores = NULL) {
   if (k != 2) {
     stop("这个脚本当前固定做二分类聚类，请把 k 设为 2。")
   }
@@ -454,7 +456,8 @@ main <- function(data_dir = NULL,
   n_use <- min(as.integer(n), nrow(info))
   recent_files <- info$file[seq_len(n_use)]
 
-  built <- build_feature_dataset(recent_files, sample_seconds = sample_seconds)
+  use_cores <- resolve_cores(cores, n_tasks = length(recent_files))
+  built <- build_feature_dataset(recent_files, sample_seconds = sample_seconds, cores = use_cores)
   if (is.null(built) || nrow(built$feature_df) < k) {
     stop("Not enough valid rounds to run feature clustering.")
   }
@@ -540,6 +543,7 @@ main <- function(data_dir = NULL,
 
   cat("Data dir:", data_dir, "\n")
   cat("Files requested:", n_use, "\n")
+  cat("Worker processes:", use_cores, "\n")
   cat("Valid rounds clustered:", nrow(raw_features), "\n")
   cat("Normalization:", normalize_method, "\n")
   cat("Assignments saved to:", assignments_path, "\n")

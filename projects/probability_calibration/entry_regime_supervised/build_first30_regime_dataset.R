@@ -33,6 +33,7 @@ get_script_dir <- function() {
 
 project_dir <- normalizePath(file.path(get_script_dir(), ".."), winslash = "/", mustWork = FALSE)
 source(file.path(project_dir, "interactive_helpers.R"), local = TRUE)
+source(file.path(project_dir, "performance_helpers.R"), local = TRUE)
 
 regime_env <- new.env(parent = globalenv())
 source(file.path(project_dir, "cluster_regime_features.R"), local = regime_env)
@@ -40,7 +41,7 @@ source(file.path(project_dir, "cluster_regime_features.R"), local = regime_env)
 FIRST30_SECONDS <- seq(0, 30, by = 5)
 
 load_first30_window <- function(csv_path, window_seconds = 30) {
-  df <- tryCatch(read.csv(csv_path, stringsAsFactors = FALSE), error = function(e) NULL)
+  df <- tryCatch(fast_read_csv(csv_path), error = function(e) NULL)
   if (is.null(df) || !all(c("timestamp", "up_midpoint") %in% names(df))) {
     return(NULL)
   }
@@ -102,8 +103,8 @@ compute_first30_features <- function(window_df) {
   )
 }
 
-build_first30_feature_df <- function(csv_files) {
-  rows <- lapply(csv_files, function(csv_path) {
+build_first30_feature_df <- function(csv_files, cores = NULL) {
+  rows <- parallel_map(csv_files, function(csv_path) {
     window_df <- load_first30_window(csv_path, window_seconds = 30)
     if (is.null(window_df)) {
       return(NULL)
@@ -123,7 +124,7 @@ build_first30_feature_df <- function(csv_files) {
       stringsAsFactors = FALSE,
       check.names = FALSE
     )
-  })
+  }, cores = cores)
 
   rows <- rows[!vapply(rows, is.null, logical(1))]
   if (length(rows) == 0) {
@@ -137,13 +138,15 @@ main <- function(data_dir = NULL,
                  n = 1000,
                  out_dir = NULL,
                  normalize_method = "zscore",
-                 seed = 42) {
+                 seed = 42,
+                 cores = NULL) {
   cluster_result <- regime_env$main(
     data_dir = data_dir,
     n = n,
     out_dir = tempfile(pattern = "regime_cluster_labels_"),
     normalize_method = normalize_method,
-    seed = seed
+    seed = seed,
+    cores = cores
   )
 
   data_dir <- regime_env$resolve_data_dir(data_dir)
@@ -154,7 +157,8 @@ main <- function(data_dir = NULL,
   n_use <- min(as.integer(n), nrow(info))
   recent_files <- info$file[seq_len(n_use)]
 
-  first30_df <- build_first30_feature_df(recent_files)
+  use_cores <- resolve_cores(cores, n_tasks = length(recent_files))
+  first30_df <- build_first30_feature_df(recent_files, cores = use_cores)
   if (is.null(first30_df) || nrow(first30_df) == 0) {
     stop("无法构建前 30 秒特征数据集。")
   }
@@ -199,6 +203,7 @@ main <- function(data_dir = NULL,
 
   cat("Data dir:", data_dir, "\n")
   cat("Files requested:", n_use, "\n")
+  cat("Worker processes:", use_cores, "\n")
   cat("Rows in dataset:", nrow(dataset), "\n")
   cat("Dataset saved to:", dataset_path, "\n")
   cat("Summary saved to:", summary_path, "\n\n")

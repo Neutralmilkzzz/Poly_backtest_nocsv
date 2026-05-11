@@ -2,5 +2,6 @@ yaml
 ggplot2
 fst
 pracma
+data.table
 # Optional if you later choose Parquet instead of FST:
 # arrow

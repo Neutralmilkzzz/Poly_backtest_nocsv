@@ -49,6 +49,7 @@ get_script_dir <- function() {
 }
 
 source(file.path(get_script_dir(), "interactive_helpers.R"), local = TRUE)
+source(file.path(get_script_dir(), "performance_helpers.R"), local = TRUE)
 
 # 从某个起点目录一路向上找，直到找到仓库根目录。
 # 这里把“同时存在 projects/probability_calibration 和 data”当作项目根的标记。
@@ -82,7 +83,8 @@ parse_args <- function(args) {
     plot_path = NULL,
     hour_plot_path = NULL,
     reliability_plot_path = NULL,
-    bins_csv_path = NULL
+    bins_csv_path = NULL,
+    cores = NULL
   )
 
   i <- 1L
@@ -121,6 +123,12 @@ parse_args <- function(args) {
 
     if (arg == "--bins-csv-path" && i < length(args)) {
       opts$bins_csv_path <- args[i + 1L]
+      i <- i + 2L
+      next
+    }
+
+    if (arg == "--cores" && i < length(args)) {
+      opts$cores <- as.integer(args[i + 1L])
       i <- i + 2L
       next
     }
@@ -355,7 +363,7 @@ build_checkpoint_rows <- function(df, csv_path, checkpoints = DEFAULT_CHECKPOINT
 # 更利于你理解到底是哪一步出了问题。
 score_one_file <- function(csv_path, checkpoints = DEFAULT_CHECKPOINTS) {
   df <- tryCatch(
-    read.csv(csv_path, stringsAsFactors = FALSE),
+    fast_read_csv(csv_path),
     error = function(e) NULL
   )
 
@@ -652,9 +660,10 @@ main <- function(
   plot_path = NULL,
   hour_plot_path = NULL,
   reliability_plot_path = NULL,
-  bins_csv_path = NULL
+  bins_csv_path = NULL,
+  cores = NULL
 ) {
-  if (is.null(data_dir) || is.null(n)) {
+  if (is.null(data_dir) || is.null(n) || is.null(cores)) {
     opts <- parse_args(commandArgs(trailingOnly = TRUE))
     if (is.null(data_dir)) {
       data_dir <- opts$data_dir
@@ -674,6 +683,9 @@ main <- function(
     if (is.null(bins_csv_path)) {
       bins_csv_path <- opts$bins_csv_path
     }
+    if (is.null(cores)) {
+      cores <- opts$cores
+    }
   }
 
   data_dir <- resolve_data_dir(data_dir)
@@ -692,9 +704,10 @@ main <- function(
   n_use <- min(as.integer(n), nrow(info))
   recent_files <- info$file[seq_len(n_use)]
 
+  use_cores <- resolve_cores(cores, n_tasks = length(recent_files))
   results <- do.call(
     rbind,
-    lapply(recent_files, score_one_file, checkpoints = checkpoints)
+    parallel_map(recent_files, score_one_file, checkpoints = checkpoints, cores = use_cores)
   )
   checkpoint_summary <- summarize_checkpoints(results)
   hour_summary <- summarize_hours(results)
@@ -702,6 +715,7 @@ main <- function(
 
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", n_use, "\n\n")
+  cat("Worker processes:", use_cores, "\n\n")
   print(results, row.names = FALSE)
 
   cat("\nMean Brier Score by checkpoint:\n")

@@ -46,6 +46,7 @@ get_script_dir <- function() {
 }
 
 source(file.path(get_script_dir(), "interactive_helpers.R"), local = TRUE)
+source(file.path(get_script_dir(), "performance_helpers.R"), local = TRUE)
 
 find_repo_root <- function(start_dir) {
   current <- normalizePath(start_dir, winslash = "/", mustWork = FALSE)
@@ -152,7 +153,7 @@ determine_label <- function(df) {
 
 load_round_vector <- function(csv_path, sample_seconds = DEFAULT_SECONDS) {
   df <- tryCatch(
-    read.csv(csv_path, stringsAsFactors = FALSE),
+    fast_read_csv(csv_path),
     error = function(e) NULL
   )
   if (is.null(df) || !all(c("timestamp", "up_midpoint") %in% names(df))) {
@@ -212,9 +213,9 @@ load_round_vector <- function(csv_path, sample_seconds = DEFAULT_SECONDS) {
   )
 }
 
-build_matrix <- function(csv_files, sample_seconds = DEFAULT_SECONDS, side = c("up", "down")) {
+build_matrix <- function(csv_files, sample_seconds = DEFAULT_SECONDS, side = c("up", "down"), cores = NULL) {
   side <- match.arg(side)
-  rows <- lapply(csv_files, load_round_vector, sample_seconds = sample_seconds)
+  rows <- parallel_map(csv_files, load_round_vector, sample_seconds = sample_seconds, cores = cores)
   rows <- rows[!vapply(rows, is.null, logical(1))]
   rows <- rows[vapply(rows, function(item) identical(item$label, side), logical(1))]
   if (length(rows) == 0) {
@@ -299,7 +300,7 @@ default_artifacts_dir <- function() {
   file.path(repo_root, "projects", "probability_calibration", "artifacts")
 }
 
-main <- function(data_dir = NULL, n = 1000, k = 3, side = c("up", "down"), plot_path = NULL, sample_seconds = DEFAULT_SECONDS) {
+main <- function(data_dir = NULL, n = 1000, k = 3, side = c("up", "down"), plot_path = NULL, sample_seconds = DEFAULT_SECONDS, cores = NULL) {
   side <- match.arg(side)
   data_dir <- resolve_data_dir(data_dir)
   csv_files <- list.files(data_dir, pattern = "\\.csv$", full.names = TRUE)
@@ -313,7 +314,8 @@ main <- function(data_dir = NULL, n = 1000, k = 3, side = c("up", "down"), plot_
   n_use <- min(as.integer(n), nrow(info))
   recent_files <- info$file[seq_len(n_use)]
 
-  built <- build_matrix(recent_files, sample_seconds = sample_seconds, side = side)
+  use_cores <- resolve_cores(cores, n_tasks = length(recent_files))
+  built <- build_matrix(recent_files, sample_seconds = sample_seconds, side = side, cores = use_cores)
   if (is.null(built) || nrow(built$matrix) < k) {
     stop(sprintf("Not enough valid '%s' rounds to run k-means clustering.", side))
   }
@@ -330,6 +332,7 @@ main <- function(data_dir = NULL, n = 1000, k = 3, side = c("up", "down"), plot_
 
   cat("Data dir:", data_dir, "\n")
   cat("Files requested:", n_use, "\n")
+  cat("Worker processes:", use_cores, "\n")
   cat("Side clustered:", side, "\n")
   cat("Valid rounds clustered:", nrow(path_matrix), "\n\n")
   print(as.data.frame(table(assignment_df$cluster), stringsAsFactors = FALSE), row.names = FALSE)
