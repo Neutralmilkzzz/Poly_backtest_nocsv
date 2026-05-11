@@ -1,0 +1,6 @@
+yaml
+ggplot2
+fst
+pracma
+# Optional if you later choose Parquet instead of FST:
+# arrow

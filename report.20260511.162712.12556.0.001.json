@@ -1,0 +1,1749 @@
+
+{
+  "header": {
+    "reportVersion": 5,
+    "event": "Allocation failed - JavaScript heap out of memory",
+    "trigger": "OOMError",
+    "filename": "report.20260511.162712.12556.0.001.json",
+    "dumpEventTime": "2026-05-11T16:27:12Z",
+    "dumpEventTimeStamp": "1778488032468",
+    "processId": 12556,
+    "threadId": 0,
+    "cwd": "C:\\Users\\ZHAOKAI\\Poly_backtest_Final",
+    "commandLine": [
+      "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe",
+      "--no-warnings",
+      "--report-on-fatalerror",
+      "--optimize-for-size",
+      "--expose-gc",
+      "--no-maglev",
+      "--no-sparkplug",
+      "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe"
+    ],
+    "nodejsVersion": "v24.15.0",
+    "wordSize": 64,
+    "arch": "x64",
+    "platform": "win32",
+    "componentVersions": {
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.8",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.2",
+      "llhttp": "9.3.1",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.3",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.68.0",
+      "node": "24.15.0",
+      "openssl": "3.5.5",
+      "simdjson": "4.5.0",
+      "simdutf": "6.4.0",
+      "sqlite": "3.51.3",
+      "tz": "2026a",
+      "undici": "7.24.4",
+      "unicode": "17.0",
+      "uv": "1.51.0",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.48",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "release": {
+      "name": "node",
+      "lts": "Krypton",
+      "headersUrl": "https://nodejs.org/download/release/v24.15.0/node-v24.15.0-headers.tar.gz",
+      "sourceUrl": "https://nodejs.org/download/release/v24.15.0/node-v24.15.0.tar.gz",
+      "libUrl": "https://nodejs.org/download/release/v24.15.0/win-x64/node.lib"
+    },
+    "osName": "Windows_NT",
+    "osRelease": "10.0.26200",
+    "osVersion": "Windows 11 Home China",
+    "osMachine": "x86_64",
+    "cpus": [
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 1386250,
+        "nice": 0,
+        "sys": 2662875,
+        "idle": 215490546,
+        "irq": 183671
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 1481734,
+        "nice": 0,
+        "sys": 1782343,
+        "idle": 216275515,
+        "irq": 117484
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 41846218,
+        "nice": 0,
+        "sys": 53554375,
+        "idle": 124139000,
+        "irq": 7171031
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 37913640,
+        "nice": 0,
+        "sys": 36993281,
+        "idle": 144632671,
+        "irq": 2295281
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 26549437,
+        "nice": 0,
+        "sys": 25416046,
+        "idle": 167574109,
+        "irq": 1347140
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 27124515,
+        "nice": 0,
+        "sys": 25130484,
+        "idle": 167284593,
+        "irq": 1266812
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 2763828,
+        "nice": 0,
+        "sys": 2496468,
+        "idle": 214279296,
+        "irq": 127046
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 2763343,
+        "nice": 0,
+        "sys": 2431640,
+        "idle": 214344609,
+        "irq": 116156
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 16266546,
+        "nice": 0,
+        "sys": 14891406,
+        "idle": 188381640,
+        "irq": 826609
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 16732984,
+        "nice": 0,
+        "sys": 14746859,
+        "idle": 188059750,
+        "irq": 786203
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 46773578,
+        "nice": 0,
+        "sys": 37956843,
+        "idle": 134809171,
+        "irq": 1746875
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 44533578,
+        "nice": 0,
+        "sys": 38643625,
+        "idle": 136362390,
+        "irq": 1635968
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 37251765,
+        "nice": 0,
+        "sys": 35110562,
+        "idle": 147177265,
+        "irq": 1619328
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 37867953,
+        "nice": 0,
+        "sys": 35324265,
+        "idle": 146347375,
+        "irq": 1578890
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 8173734,
+        "nice": 0,
+        "sys": 7154265,
+        "idle": 204211593,
+        "irq": 340171
+      },
+      {
+        "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+        "speed": 3793,
+        "user": 8325843,
+        "nice": 0,
+        "sys": 7145234,
+        "idle": 204068515,
+        "irq": 333156
+      }
+    ],
+    "networkInterfaces": [
+      {
+        "name": "vEthernet (WSL (Hyper-V firewall))",
+        "internal": false,
+        "mac": "00:15:5d:83:f6:67",
+        "address": "fe80::e532:6bb4:555f:1044",
+        "netmask": "ffff:ffff:ffff:ffff::",
+        "family": "IPv6",
+        "scopeid": 51
+      },
+      {
+        "name": "vEthernet (WSL (Hyper-V firewall))",
+        "internal": false,
+        "mac": "00:15:5d:83:f6:67",
+        "address": "172.24.240.1",
+        "netmask": "255.255.240.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "VMware Network Adapter VMnet1",
+        "internal": false,
+        "mac": "00:50:56:c0:00:01",
+        "address": "192.168.11.1",
+        "netmask": "255.255.255.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "VMware Network Adapter VMnet8",
+        "internal": false,
+        "mac": "00:50:56:c0:00:08",
+        "address": "192.168.43.1",
+        "netmask": "255.255.255.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "WLAN",
+        "internal": false,
+        "mac": "70:08:94:51:90:b1",
+        "address": "10.68.21.212",
+        "netmask": "255.255.0.0",
+        "family": "IPv4"
+      },
+      {
+        "name": "Loopback Pseudo-Interface 1",
+        "internal": true,
+        "mac": "00:00:00:00:00:00",
+        "address": "::1",
+        "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+        "family": "IPv6",
+        "scopeid": 0
+      },
+      {
+        "name": "Loopback Pseudo-Interface 1",
+        "internal": true,
+        "mac": "00:00:00:00:00:00",
+        "address": "127.0.0.1",
+        "netmask": "255.0.0.0",
+        "family": "IPv4"
+      }
+    ],
+    "host": "SKY"
+  },
+  "javascriptStack": {
+    "message": "No stack.",
+    "stack": [
+      "Unavailable."
+    ],
+    "errorProperties": {
+    }
+  },
+  "javascriptHeap": {
+    "totalMemory": 177336320,
+    "executableMemory": 3936256,
+    "totalCommittedMemory": 177336320,
+    "availableMemory": 4136861528,
+    "totalGlobalHandlesMemory": 184392,
+    "usedGlobalHandlesMemory": 45344,
+    "usedMemory": 161921680,
+    "memoryLimit": 4298113024,
+    "mallocedMemory": 2146352,
+    "externalMemory": 84482587,
+    "peakMallocedMemory": 2525904960,
+    "nativeContextCount": 3,
+    "detachedContextCount": 0,
+    "doesZapGarbage": 0,
+    "heapSpaces": {
+      "read_only_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "new_space": {
+        "memorySize": 1048576,
+        "committedMemory": 1048576,
+        "capacity": 1048512,
+        "used": 1048512,
+        "available": 0
+      },
+      "old_space": {
+        "memorySize": 146644992,
+        "committedMemory": 146644992,
+        "capacity": 146318368,
+        "used": 132281944,
+        "available": 14036424
+      },
+      "code_space": {
+        "memorySize": 3145728,
+        "committedMemory": 3145728,
+        "capacity": 3145344,
+        "used": 2675648,
+        "available": 469696
+      },
+      "shared_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "trusted_space": {
+        "memorySize": 5591040,
+        "committedMemory": 5591040,
+        "capacity": 5573976,
+        "used": 5043848,
+        "available": 530128
+      },
+      "shared_trusted_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "new_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 1048576,
+        "used": 0,
+        "available": 1048576
+      },
+      "large_object_space": {
+        "memorySize": 19881984,
+        "committedMemory": 19881984,
+        "capacity": 19852408,
+        "used": 19852408,
+        "available": 0
+      },
+      "code_large_object_space": {
+        "memorySize": 790528,
+        "committedMemory": 790528,
+        "capacity": 787264,
+        "used": 787264,
+        "available": 0
+      },
+      "shared_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "shared_trusted_large_object_space": {
+        "memorySize": 0,
+        "committedMemory": 0,
+        "capacity": 0,
+        "used": 0,
+        "available": 0
+      },
+      "trusted_large_object_space": {
+        "memorySize": 233472,
+        "committedMemory": 233472,
+        "capacity": 232056,
+        "used": 232056,
+        "available": 0
+      }
+    }
+  },
+  "nativeStack": [
+    {
+      "pc": "0x00007ff67148a9f7",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671487c6c",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67148c998",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671553f77",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67219faa7",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fa04d7",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671f38efb",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671f1094e",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fa2f72",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fa1f27",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fb2e52",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fb297b",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67343a2ad",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671f9dfa0",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fb87ea",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fc4648",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fdb986",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff671fd7600",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67202ddea",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67202d50c",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff672029290",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff67202905f",
+      "symbol": ""
+    },
+    {
+      "pc": "0x00007ff6721631e4",
+      "symbol": ""
+    },
+    {
+      "pc": "0x000001ef9fe7753a",
+      "symbol": ""
+    }
+  ],
+  "resourceUsage": {
+    "free_memory": 2012012544,
+    "total_memory": 29860155392,
+    "rss": 235491328,
+    "available_memory": 2012012544,
+    "userCpuSeconds": 490.89,
+    "kernelCpuSeconds": 85.109,
+    "cpuConsumptionPercent": 10.827,
+    "userCpuConsumptionPercent": 9.22726,
+    "kernelCpuConsumptionPercent": 1.59979,
+    "maxRss": 2387640320,
+    "pageFaults": {
+      "IORequired": 1844399,
+      "IONotRequired": 0
+    },
+    "fsActivity": {
+      "reads": 54230,
+      "writes": 20900
+    }
+  },
+  "uvthreadResourceUsage": {
+    "userCpuSeconds": 294.14,
+    "kernelCpuSeconds": 69.875,
+    "cpuConsumptionPercent": 6.84239,
+    "userCpuConsumptionPercent": 5.52895,
+    "kernelCpuConsumptionPercent": 1.31344,
+    "fsActivity": {
+      "reads": 0,
+      "writes": 0
+    }
+  },
+  "libuv": [
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efe4c332b0"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x00007ff6768a72c0"
+    },
+    {
+      "type": "timer",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efe6a81fb0",
+      "repeat": 0,
+      "firesInMsFromNow": 14,
+      "expired": false
+    },
+    {
+      "type": "check",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efe6a82050"
+    },
+    {
+      "type": "idle",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efe6a820c8"
+    },
+    {
+      "type": "prepare",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efe6a82140"
+    },
+    {
+      "type": "check",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efe6a821b8"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efe6a82230"
+    },
+    {
+      "type": "tty",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efff21b3e8",
+      "width": 76,
+      "height": 22,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efff266bc8",
+      "signum": 28,
+      "signal": "SIGWINCH"
+    },
+    {
+      "type": "tty",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efff2cb048",
+      "width": 76,
+      "height": 22,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "tty",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efff29aab8",
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": false
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa346b7d8",
+      "signum": 15,
+      "signal": "SIGTERM"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa346c558",
+      "signum": 2,
+      "signal": "SIGINT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa346bad8",
+      "signum": 1,
+      "signal": "SIGHUP"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa346bdd8",
+      "signum": 3,
+      "signal": "SIGQUIT"
+    },
+    {
+      "type": "signal",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa346c258",
+      "signum": 22,
+      "signal": "SIGABRT"
+    },
+    {
+      "type": "fs_event",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa3016518",
+      "filename": "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\session-state\\67da5c22-de19-47fc-b2b3-431a376c9638\\research"
+    },
+    {
+      "type": "fs_event",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efa2dc9c58",
+      "filename": "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\ide"
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa325ab68",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa325bd68",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa325b168",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3259668",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa325b768",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3258a68",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bae3c8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bb13c8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bb19c8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bafec8",
+      "localEndpoint": null,
+      "remoteEndpoint": "\\\\?\\pipe\\conpty-2532491.624075465-in",
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3baf8c8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa39d3d28"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa39d3318"
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efa39d4178"
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3258468",
+      "localEndpoint": null,
+      "remoteEndpoint": "\\\\?\\pipe\\conpty-4854714.163849565-in",
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efa3259c68",
+      "localEndpoint": null,
+      "remoteEndpoint": "\\\\.\\pipe\\conpty-4854714.163849565-out-worker",
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "async",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efa3545390"
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bafbc8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3bb16c8",
+      "localEndpoint": null,
+      "remoteEndpoint": "\\\\?\\pipe\\conpty-380483.63546029804-in",
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa3baf2c8",
+      "localEndpoint": null,
+      "remoteEndpoint": null,
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "pipe",
+      "is_active": false,
+      "is_referenced": true,
+      "address": "0x000001efa325a268",
+      "localEndpoint": null,
+      "remoteEndpoint": "\\\\?\\pipe\\conpty-8890261.407704128-in",
+      "writeQueueSize": 0,
+      "readable": false,
+      "writable": true
+    },
+    {
+      "type": "tcp",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa364c448",
+      "localEndpoint": {
+        "host": "SKY.hku.hk",
+        "ip4": "10.68.21.212",
+        "port": 63372
+      },
+      "remoteEndpoint": {
+        "host": "lb-140-82-113-22-iad.github.com",
+        "ip4": "140.82.113.22",
+        "port": 443
+      },
+      "sendBufferSize": 65536,
+      "recvBufferSize": 65536,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "tcp",
+      "is_active": true,
+      "is_referenced": true,
+      "address": "0x000001efa364ca48",
+      "localEndpoint": {
+        "host": "SKY.hku.hk",
+        "ip4": "10.68.21.212",
+        "port": 50143
+      },
+      "remoteEndpoint": {
+        "host": "lb-140-82-113-22-iad.github.com",
+        "ip4": "140.82.113.22",
+        "port": 443
+      },
+      "sendBufferSize": 262144,
+      "recvBufferSize": 65536,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "tcp",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa364d248",
+      "localEndpoint": {
+        "host": "SKY.hku.hk",
+        "ip4": "10.68.21.212",
+        "port": 51058
+      },
+      "remoteEndpoint": {
+        "host": "lb-140-82-114-22-iad.github.com",
+        "ip4": "140.82.114.22",
+        "port": 443
+      },
+      "sendBufferSize": 65536,
+      "recvBufferSize": 65536,
+      "writeQueueSize": 0,
+      "readable": true,
+      "writable": true
+    },
+    {
+      "type": "timer",
+      "is_active": true,
+      "is_referenced": false,
+      "address": "0x000001efa4305550",
+      "repeat": 0,
+      "firesInMsFromNow": 84,
+      "expired": false
+    },
+    {
+      "type": "loop",
+      "is_active": true,
+      "address": "0x00007ff676b3de48",
+      "loopIdleTimeSeconds": 4925.84
+    }
+  ],
+  "workers": [
+        
+    {
+      "header": {
+        "reportVersion": 5,
+        "event": "Worker thread subreport [WorkerThread]",
+        "trigger": "OOMError",
+        "filename": null,
+        "dumpEventTime": "2026-05-11T16:27:12Z",
+        "dumpEventTimeStamp": "1778488032690",
+        "processId": 12556,
+        "threadId": 12,
+        "cwd": "C:\\Users\\ZHAOKAI\\Poly_backtest_Final",
+        "commandLine": [
+          "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe",
+          "--no-warnings",
+          "--report-on-fatalerror",
+          "--optimize-for-size",
+          "--expose-gc",
+          "--no-maglev",
+          "--no-sparkplug",
+          "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe"
+        ],
+        "nodejsVersion": "v24.15.0",
+        "wordSize": 64,
+        "arch": "x64",
+        "platform": "win32",
+        "componentVersions": {
+          "acorn": "8.16.0",
+          "ada": "3.4.4",
+          "amaro": "1.1.8",
+          "ares": "1.34.6",
+          "brotli": "1.2.0",
+          "cldr": "48.0",
+          "icu": "78.2",
+          "llhttp": "9.3.1",
+          "merve": "1.2.2",
+          "modules": "137",
+          "napi": "10",
+          "nbytes": "0.1.3",
+          "ncrypto": "0.0.1",
+          "nghttp2": "1.68.0",
+          "node": "24.15.0",
+          "openssl": "3.5.5",
+          "simdjson": "4.5.0",
+          "simdutf": "6.4.0",
+          "sqlite": "3.51.3",
+          "tz": "2026a",
+          "undici": "7.24.4",
+          "unicode": "17.0",
+          "uv": "1.51.0",
+          "uvwasi": "0.0.23",
+          "v8": "13.6.233.17-node.48",
+          "zlib": "1.3.1-e00f703",
+          "zstd": "1.5.7"
+        },
+        "release": {
+          "name": "node",
+          "lts": "Krypton",
+          "headersUrl": "https://nodejs.org/download/release/v24.15.0/node-v24.15.0-headers.tar.gz",
+          "sourceUrl": "https://nodejs.org/download/release/v24.15.0/node-v24.15.0.tar.gz",
+          "libUrl": "https://nodejs.org/download/release/v24.15.0/win-x64/node.lib"
+        },
+        "osName": "Windows_NT",
+        "osRelease": "10.0.26200",
+        "osVersion": "Windows 11 Home China",
+        "osMachine": "x86_64",
+        "cpus": [
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 1386250,
+            "nice": 0,
+            "sys": 2662937,
+            "idle": 215490703,
+            "irq": 183671
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 1481750,
+            "nice": 0,
+            "sys": 1782359,
+            "idle": 216275703,
+            "irq": 117484
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 41846234,
+            "nice": 0,
+            "sys": 53554406,
+            "idle": 124139171,
+            "irq": 7171062
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 37913703,
+            "nice": 0,
+            "sys": 36993296,
+            "idle": 144632812,
+            "irq": 2295296
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 26549437,
+            "nice": 0,
+            "sys": 25416078,
+            "idle": 167574296,
+            "irq": 1347140
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 27124515,
+            "nice": 0,
+            "sys": 25130500,
+            "idle": 167284796,
+            "irq": 1266828
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 2763875,
+            "nice": 0,
+            "sys": 2496531,
+            "idle": 214279406,
+            "irq": 127062
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 2763437,
+            "nice": 0,
+            "sys": 2431656,
+            "idle": 214344718,
+            "irq": 116156
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 16266562,
+            "nice": 0,
+            "sys": 14891437,
+            "idle": 188381812,
+            "irq": 826609
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 16732984,
+            "nice": 0,
+            "sys": 14746875,
+            "idle": 188059953,
+            "irq": 786203
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 46773625,
+            "nice": 0,
+            "sys": 37956937,
+            "idle": 134809250,
+            "irq": 1746906
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 44533734,
+            "nice": 0,
+            "sys": 38643671,
+            "idle": 136362406,
+            "irq": 1635968
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 37251781,
+            "nice": 0,
+            "sys": 35110593,
+            "idle": 147177437,
+            "irq": 1619328
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 37867953,
+            "nice": 0,
+            "sys": 35324312,
+            "idle": 146347546,
+            "irq": 1578906
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 8173734,
+            "nice": 0,
+            "sys": 7154281,
+            "idle": 204211796,
+            "irq": 340171
+          },
+          {
+            "model": "AMD Ryzen 7 8845H w/ Radeon 780M Graphics",
+            "speed": 3793,
+            "user": 8325843,
+            "nice": 0,
+            "sys": 7145250,
+            "idle": 204068718,
+            "irq": 333156
+          }
+        ],
+        "networkInterfaces": [
+          {
+            "name": "vEthernet (WSL (Hyper-V firewall))",
+            "internal": false,
+            "mac": "00:15:5d:83:f6:67",
+            "address": "fe80::e532:6bb4:555f:1044",
+            "netmask": "ffff:ffff:ffff:ffff::",
+            "family": "IPv6",
+            "scopeid": 51
+          },
+          {
+            "name": "vEthernet (WSL (Hyper-V firewall))",
+            "internal": false,
+            "mac": "00:15:5d:83:f6:67",
+            "address": "172.24.240.1",
+            "netmask": "255.255.240.0",
+            "family": "IPv4"
+          },
+          {
+            "name": "VMware Network Adapter VMnet1",
+            "internal": false,
+            "mac": "00:50:56:c0:00:01",
+            "address": "192.168.11.1",
+            "netmask": "255.255.255.0",
+            "family": "IPv4"
+          },
+          {
+            "name": "VMware Network Adapter VMnet8",
+            "internal": false,
+            "mac": "00:50:56:c0:00:08",
+            "address": "192.168.43.1",
+            "netmask": "255.255.255.0",
+            "family": "IPv4"
+          },
+          {
+            "name": "WLAN",
+            "internal": false,
+            "mac": "70:08:94:51:90:b1",
+            "address": "10.68.21.212",
+            "netmask": "255.255.0.0",
+            "family": "IPv4"
+          },
+          {
+            "name": "Loopback Pseudo-Interface 1",
+            "internal": true,
+            "mac": "00:00:00:00:00:00",
+            "address": "::1",
+            "netmask": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+            "family": "IPv6",
+            "scopeid": 0
+          },
+          {
+            "name": "Loopback Pseudo-Interface 1",
+            "internal": true,
+            "mac": "00:00:00:00:00:00",
+            "address": "127.0.0.1",
+            "netmask": "255.0.0.0",
+            "family": "IPv4"
+          }
+        ],
+        "host": "SKY"
+      },
+      "javascriptStack": {
+        "message": "No stack.",
+        "stack": [
+          "Unavailable."
+        ],
+        "errorProperties": {
+        }
+      },
+      "javascriptHeap": {
+        "totalMemory": 7536640,
+        "executableMemory": 262144,
+        "totalCommittedMemory": 7536640,
+        "availableMemory": 4292810528,
+        "totalGlobalHandlesMemory": 12360,
+        "usedGlobalHandlesMemory": 2976,
+        "usedMemory": 5856992,
+        "memoryLimit": 4298113024,
+        "mallocedMemory": 311344,
+        "externalMemory": 3562749,
+        "peakMallocedMemory": 2517160768,
+        "nativeContextCount": 2,
+        "detachedContextCount": 0,
+        "doesZapGarbage": 0,
+        "heapSpaces": {
+          "read_only_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "new_space": {
+            "memorySize": 1048576,
+            "committedMemory": 1048576,
+            "capacity": 1048512,
+            "used": 8504,
+            "available": 1040008
+          },
+          "old_space": {
+            "memorySize": 4300800,
+            "committedMemory": 4300800,
+            "capacity": 4292296,
+            "used": 4146736,
+            "available": 145560
+          },
+          "code_space": {
+            "memorySize": 262144,
+            "committedMemory": 262144,
+            "capacity": 2752,
+            "used": 2752,
+            "available": 0
+          },
+          "shared_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "trusted_space": {
+            "memorySize": 1658880,
+            "committedMemory": 1658880,
+            "capacity": 1436840,
+            "used": 1436840,
+            "available": 0
+          },
+          "shared_trusted_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "new_large_object_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 1048576,
+            "used": 0,
+            "available": 1048576
+          },
+          "large_object_space": {
+            "memorySize": 266240,
+            "committedMemory": 266240,
+            "capacity": 262160,
+            "used": 262160,
+            "available": 0
+          },
+          "code_large_object_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "shared_large_object_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "shared_trusted_large_object_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          },
+          "trusted_large_object_space": {
+            "memorySize": 0,
+            "committedMemory": 0,
+            "capacity": 0,
+            "used": 0,
+            "available": 0
+          }
+        }
+      },
+      "nativeStack": [
+        {
+          "pc": "0x00007ff67148a9f7",
+          "symbol": "class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > __cdecl node::GetAnonymousMainPath(void)+303175"
+        },
+        {
+          "pc": "0x00007ff67148ce33",
+          "symbol": "void __cdecl node::GetNodeReport(class node::Environment * __ptr64,char const * __ptr64,char const * __ptr64,class v8::Local<class v8::Value>,class std::basic_ostream<char,struct std::char_traits<char> > & __ptr64)+355"
+        },
+        {
+          "pc": "0x00007ff67148fb1a",
+          "symbol": "void __cdecl node::GetNodeReport(class node::Environment * __ptr64,char const * __ptr64,char const * __ptr64,class v8::Local<class v8::Value>,class std::basic_ostream<char,struct std::char_traits<char> > & __ptr64)+11850"
+        },
+        {
+          "pc": "0x00007ff671611ea2",
+          "symbol": "void __cdecl node::SetCppgcReference(class v8::Isolate * __ptr64,class v8::Local<class v8::Object>,void * __ptr64)+70722"
+        },
+        {
+          "pc": "0x00007ff671610fec",
+          "symbol": "void __cdecl node::SetCppgcReference(class v8::Isolate * __ptr64,class v8::Local<class v8::Object>,void * __ptr64)+66956"
+        },
+        {
+          "pc": "0x00007ff6716163c1",
+          "symbol": "void __cdecl node::SetCppgcReference(class v8::Isolate * __ptr64,class v8::Local<class v8::Object>,void * __ptr64)+88417"
+        },
+        {
+          "pc": "0x00007ff6722070ab",
+          "symbol": "uv_run+1867"
+        },
+        {
+          "pc": "0x00007ff672206c1f",
+          "symbol": "uv_run+703"
+        },
+        {
+          "pc": "0x00007ff671668a6f",
+          "symbol": "__int64 __cdecl node::DecodeWrite(class v8::Isolate * __ptr64,char * __ptr64,unsigned __int64,class v8::Local<class v8::Value>,enum node::encoding)+351"
+        },
+        {
+          "pc": "0x00007ff6713b4bd1",
+          "symbol": "RSA_meth_get_flags+221393"
+        },
+        {
+          "pc": "0x00007ff6713bdfc0",
+          "symbol": "RSA_meth_get_flags+259264"
+        },
+        {
+          "pc": "0x00007ff6721f4a36",
+          "symbol": "uv_thread_detach+150"
+        },
+        {
+          "pc": "0x00007ff673455a73",
+          "symbol": "struct v8::base::MagicNumbersForDivision<unsigned __int64> __cdecl v8::base::UnsignedDivisionByConstant<unsigned __int64>(unsigned __int64,unsigned int)+2907235"
+        },
+        {
+          "pc": "0x00007ffaf464e8d7",
+          "symbol": "BaseThreadInitThunk+23"
+        },
+        {
+          "pc": "0x00007ffaf512c3fc",
+          "symbol": "RtlUserThreadStart+44"
+        }
+      ],
+      "resourceUsage": {
+        "free_memory": 2018750464,
+        "total_memory": 29860155392,
+        "rss": 235442176,
+        "available_memory": 2018750464,
+        "userCpuSeconds": 490.921,
+        "kernelCpuSeconds": 85.234,
+        "cpuConsumptionPercent": 10.83,
+        "userCpuConsumptionPercent": 9.22784,
+        "kernelCpuConsumptionPercent": 1.60214,
+        "maxRss": 2387640320,
+        "pageFaults": {
+          "IORequired": 1847404,
+          "IONotRequired": 0
+        },
+        "fsActivity": {
+          "reads": 54230,
+          "writes": 20903
+        }
+      },
+      "uvthreadResourceUsage": {
+        "userCpuSeconds": 0.125,
+        "kernelCpuSeconds": 0.156,
+        "cpuConsumptionPercent": 0.00528195,
+        "userCpuConsumptionPercent": 0.00234962,
+        "kernelCpuConsumptionPercent": 0.00293233,
+        "fsActivity": {
+          "reads": 0,
+          "writes": 0
+        }
+      },
+      "libuv": [
+        {
+          "type": "async",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa33fecd0"
+        },
+        {
+          "type": "async",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa39d4008"
+        },
+        {
+          "type": "timer",
+          "is_active": false,
+          "is_referenced": false,
+          "address": "0x000001efa8abd6e0",
+          "repeat": 0,
+          "firesInMsFromNow": -427405715,
+          "expired": true
+        },
+        {
+          "type": "check",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa8abd780"
+        },
+        {
+          "type": "idle",
+          "is_active": false,
+          "is_referenced": true,
+          "address": "0x000001efa8abd7f8"
+        },
+        {
+          "type": "prepare",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa8abd870"
+        },
+        {
+          "type": "check",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa8abd8e8"
+        },
+        {
+          "type": "async",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa8abd960"
+        },
+        {
+          "type": "async",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa39d42e8"
+        },
+        {
+          "type": "async",
+          "is_active": true,
+          "is_referenced": false,
+          "address": "0x000001efa39d45c8"
+        },
+        {
+          "type": "pipe",
+          "is_active": true,
+          "is_referenced": true,
+          "address": "0x000001efa325ba68",
+          "localEndpoint": null,
+          "remoteEndpoint": "\\\\.\\pipe\\conpty-4854714.163849565-out",
+          "writeQueueSize": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "type": "pipe",
+          "is_active": true,
+          "is_referenced": true,
+          "address": "0x000001efa3259968",
+          "localEndpoint": "\\\\.\\pipe\\conpty-4854714.163849565-out-worker",
+          "remoteEndpoint": null,
+          "writeQueueSize": 0,
+          "readable": false,
+          "writable": false
+        },
+        {
+          "type": "pipe",
+          "is_active": true,
+          "is_referenced": true,
+          "address": "0x000001efa3bb1fc8",
+          "localEndpoint": null,
+          "remoteEndpoint": "\\\\?\\pipe\\conpty-4854714.163849565-out-worker",
+          "writeQueueSize": 0,
+          "readable": true,
+          "writable": true
+        },
+        {
+          "type": "loop",
+          "is_active": true,
+          "address": "0x000000b257fffaa8",
+          "loopIdleTimeSeconds": 2751.92
+        }
+      ],
+      "workers": [
+      ],
+      "environmentVariables": {
+        "ALLUSERSPROFILE": "C:\\ProgramData",
+        "ANTHROPIC_AUTH_TOKEN": "sk-OmESjZeSBDM329XTBFBTJA",
+        "ANTHROPIC_BASE_URL": "http://www.bio8.cs.hku.hk:8080",
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "MiniMax-M2.7",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "MiniMax-M2.7",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "MiniMax-M2.7",
+        "ANTHROPIC_MODEL": "MiniMax-M2.7",
+        "ANTHROPIC_SMALL_FAST_MODEL": "MiniMax-M2.7",
+        "API_TIMEOUT_MS": "3000000",
+        "APPDATA": "C:\\Users\\ZHAOKAI\\AppData\\Roaming",
+        "ChocolateyLastPathUpdate": "134024760788376620",
+        "CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS": "1",
+        "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+        "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "65000",
+        "CommonProgramFiles": "C:\\Program Files\\Common Files",
+        "CommonProgramFiles(x86)": "C:\\Program Files (x86)\\Common Files",
+        "CommonProgramW6432": "C:\\Program Files\\Common Files",
+        "COMPUTERNAME": "SKY",
+        "ComSpec": "C:\\Windows\\system32\\cmd.exe",
+        "CONDA_BAT": "C:\\ProgramData\\anaconda3\\condabin\\conda.bat",
+        "CONDA_EXE": "C:\\ProgramData\\anaconda3\\Scripts\\conda.exe",
+        "CONDA_SHLVL": "0",
+        "COPILOT_CLI_BINARY_VERSION": "1.0.44",
+        "COPILOT_LOADER_PID": "15540",
+        "COPILOT_RUN_APP": "1",
+        "CPLUS_INCLUDE_PATH": "C:\\Users\\ZHAOKAI\\scoop\\apps\\gcc\\current\\include",
+        "C_INCLUDE_PATH": "C:\\Users\\ZHAOKAI\\scoop\\apps\\gcc\\current\\include",
+        "DriverData": "C:\\Windows\\System32\\Drivers\\DriverData",
+        "EFC_20676_1262719628": "1",
+        "EFC_20676_1592913036": "1",
+        "EFC_20676_2283032206": "1",
+        "EFC_20676_2775293581": "1",
+        "EFC_20676_3789132940": "1",
+        "FPS_BROWSER_APP_PROFILE_STRING": "Internet Explorer",
+        "FPS_BROWSER_USER_PROFILE_STRING": "Default",
+        "GIT_CONFIG_COUNT": "1",
+        "GIT_CONFIG_KEY_0": "safe.bareRepository",
+        "GIT_CONFIG_VALUE_0": "explicit",
+        "HOMEDRIVE": "C:",
+        "HOMEPATH": "\\Users\\ZHAOKAI",
+        "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot",
+        "LOCALAPPDATA": "C:\\Users\\ZHAOKAI\\AppData\\Local",
+        "LOGONSERVER": "\\\\SKY",
+        "ngrok": "C:\\Users\\ZHAOKAI\\node_modules\\ngrok\\bin",
+        "NODE_ENV": "production",
+        "NUMBER_OF_PROCESSORS": "16",
+        "OneDrive": "C:\\Users\\ZHAOKAI\\OneDrive - The University of Hong Kong - Connect",
+        "OneDriveCommercial": "C:\\Users\\ZHAOKAI\\OneDrive - The University of Hong Kong - Connect",
+        "OS": "Windows_NT",
+        "Path": "C:\\ProgramData\\anaconda3\\condabin;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot\\bin;C:\\Python313\\Scripts\\;C:\\Python313\\;D:\\Program Files (x86)\\VMware\\VMware Workstation\\bin\\;D:\\Program Files\\Python39\\Scripts\\;D:\\Program Files\\Python39\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\dotnet\\;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\mingw64\\bin;C:\\Program Files\\nodejs\\;C:\\ProgramData\\chocolatey\\bin;C:\\sqlite-tools-win-x64-3500400;C:\\Program Files\\cursor\\resources\\app\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\ZHAOKAI\\node_modules\\ngrok\\bin;C:\\Program Files\\Zero Install;C:\\Program Files\\GitHub CLI\\;C:\\Program Files\\R\\R-4.5.2\\bin;C:\\Program Files\\PowerShell\\7\\;C:\\Users\\ZHAOKAI\\scoop\\apps\\gcc\\current\\bin;C:\\Users\\ZHAOKAI\\.cargo\\bin;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\Quarto\\bin;C:\\Users\\ZHAOKAI\\.local\\bin;C:\\ProgramData\\anaconda3\\condabin;C:\\Program Files\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot\\bin;C:\\Python313\\Scripts\\;C:\\Python313\\;D:\\Program Files (x86)\\VMware\\VMware Workstation\\bin\\;D:\\Program Files\\Python39\\Scripts\\;D:\\Program Files\\Python39\\;C:\\Windows\\system32;C:\\Windows;C:\\Windows\\System32\\Wbem;C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\;C:\\Windows\\System32\\OpenSSH\\;C:\\Program Files\\dotnet\\;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\mingw64\\bin;C:\\Program Files\\nodejs\\;C:\\ProgramData\\chocolatey\\bin;C:\\sqlite-tools-win-x64-3500400;C:\\Program Files\\cursor\\resources\\app\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Docker\\Docker\\resources\\bin;C:\\Users\\ZHAOKAI\\node_modules\\ngrok\\bin;C:\\Program Files\\Zero Install;C:\\Program Files\\GitHub CLI\\;C:\\Users\\ZHAOKAI\\scoop\\shims;C:\\ProgramData\\anaconda3;C:\\ProgramData\\anaconda3\\Library\\mingw-w64\\bin;C:\\ProgramData\\anaconda3\\Library\\usr\\bin;C:\\ProgramData\\anaconda3\\Library\\bin;C:\\ProgramData\\anaconda3\\Scripts;C:\\ProgramData\\anaconda3\\bin;C:\\Python313\\Scripts;C:\\Python313;D:\\Program Files (x86)\\VMware\\VMware Workstation\\bin;D:\\Program Files\\Python39\\Scripts;D:\\Program Files\\Python39;C:\\Windows\\System32\\WindowsPowerShell\\v1.0;C:\\Windows\\System32\\OpenSSH;C:\\Program Files\\dotnet;C:\\Program Files\\nodejs;.;C:\\Program Files\\GitHub CLI;C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Users\\ZHAOKAI\\AppData\\Local\\GitHubDesktop\\bin;C:\\Users\\ZHAOKAI\\.dotnet\\tools;C:\\Users\\ZHAOKAI\\AppData\\Roaming\\npm;C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\jqlang.jq_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\Ollama;C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\Antigravity\\bin;C:\\Users\\ZHAOKAI\\AppData\\Local\\Programs\\cursor\\resources\\app\\bin;C:\\Users\\ZHAOKAI\\AppData\\Local\\Python\\bin;C:\\Users\\ZHAOKAI\\AppData\\Roaming\\Python\\Python313\\Scripts;C:\\Users\\ZHAOKAI\\clawd\\bin",
+        "PATHEXT": ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PY;.PYW",
+        "POWERSHELL_DISTRIBUTION_CHANNEL": "MSI:Windows 10 Home China",
+        "PROCESSOR_ARCHITECTURE": "AMD64",
+        "PROCESSOR_IDENTIFIER": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+        "PROCESSOR_LEVEL": "25",
+        "PROCESSOR_REVISION": "7502",
+        "ProgramData": "C:\\ProgramData",
+        "ProgramFiles": "C:\\Program Files",
+        "ProgramFiles(x86)": "C:\\Program Files (x86)",
+        "ProgramW6432": "C:\\Program Files",
+        "PROMPT": "$P$G",
+        "PSModulePath": "C:\\Program Files\\WindowsPowerShell\\Modules;C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\Modules",
+        "PUBLIC": "C:\\Users\\Public",
+        "REPO_DIR": "C:\\Users\\ZHAOKAI\\Desktop\\sp21-s2771",
+        "SESSIONNAME": "Console",
+        "SystemDrive": "C:",
+        "SystemRoot": "C:\\Windows",
+        "TEMP": "C:\\Users\\ZHAOKAI\\AppData\\Local\\Temp",
+        "TMP": "C:\\Users\\ZHAOKAI\\AppData\\Local\\Temp",
+        "USERDOMAIN": "SKY",
+        "USERDOMAIN_ROAMINGPROFILE": "SKY",
+        "USERNAME": "ZHAOKAI",
+        "USERPROFILE": "C:\\Users\\ZHAOKAI",
+        "windir": "C:\\Windows",
+        "ZONEINFO": "C:\\Program Files\\Git\\mingw64\\share\\zoneinfo"
+      },
+      "sharedObjects": [
+        "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe",
+        "C:\\Windows\\SYSTEM32\\ntdll.dll",
+        "C:\\Windows\\System32\\KERNEL32.DLL",
+        "C:\\Windows\\System32\\KERNELBASE.dll",
+        "C:\\Windows\\System32\\CRYPT32.dll",
+        "C:\\Windows\\System32\\ucrtbase.dll",
+        "C:\\Windows\\System32\\WS2_32.dll",
+        "C:\\Windows\\System32\\RPCRT4.dll",
+        "C:\\Windows\\System32\\USER32.dll",
+        "C:\\Windows\\System32\\win32u.dll",
+        "C:\\Windows\\System32\\GDI32.dll",
+        "C:\\Windows\\System32\\gdi32full.dll",
+        "C:\\Windows\\System32\\msvcp_win.dll",
+        "C:\\Windows\\System32\\ADVAPI32.dll",
+        "C:\\Windows\\System32\\msvcrt.dll",
+        "C:\\Windows\\System32\\sechost.dll",
+        "C:\\Windows\\System32\\SHELL32.dll",
+        "C:\\Windows\\SYSTEM32\\dbghelp.dll",
+        "C:\\Windows\\System32\\combase.dll",
+        "C:\\Windows\\System32\\wintypes.dll",
+        "C:\\Windows\\System32\\OLEAUT32.dll",
+        "C:\\Windows\\System32\\ole32.dll",
+        "C:\\Windows\\SYSTEM32\\IPHLPAPI.DLL",
+        "C:\\Windows\\SYSTEM32\\WINMM.dll",
+        "C:\\Windows\\SYSTEM32\\USERENV.dll",
+        "C:\\Windows\\SYSTEM32\\dbgcore.DLL",
+        "C:\\Windows\\SYSTEM32\\CRYPTBASE.DLL",
+        "C:\\Windows\\System32\\IMM32.DLL",
+        "C:\\Windows\\SYSTEM32\\powrprof.dll",
+        "C:\\Windows\\SYSTEM32\\UMPDC.dll",
+        "C:\\Windows\\system32\\uxtheme.dll",
+        "C:\\Program Files (x86)\\Sangfor\\SSL\\ClientComponent\\SangforTcpX64.dll",
+        "C:\\Windows\\System32\\SHLWAPI.dll",
+        "C:\\Windows\\System32\\Windows.Storage.dll",
+        "C:\\Windows\\System32\\PSAPI.DLL",
+        "C:\\Windows\\System32\\WINTRUST.dll",
+        "C:\\Windows\\SYSTEM32\\VERSION.dll",
+        "C:\\Windows\\SYSTEM32\\MSASN1.dll",
+        "C:\\Windows\\system32\\mswsock.dll",
+        "C:\\Windows\\SYSTEM32\\CRYPTSP.dll",
+        "C:\\Windows\\system32\\rsaenh.dll",
+        "C:\\Windows\\System32\\bcryptPrimitives.dll",
+        "C:\\Windows\\SYSTEM32\\kernel.appcore.dll",
+        "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\koffi\\build\\koffi\\win32_x64\\koffi.node",
+        "C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\win32_native.dll",
+        "C:\\Windows\\SYSTEM32\\VCRUNTIME140.dll",
+        "C:\\Windows\\System32\\NSI.dll",
+        "C:\\Windows\\SYSTEM32\\dhcpcsvc6.DLL",
+        "C:\\Windows\\SYSTEM32\\dhcpcsvc.DLL",
+        "C:\\Windows\\SYSTEM32\\DNSAPI.dll",
+        "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\keytar.node",
+        "C:\\Program Files (x86)\\Sangfor\\SSL\\ClientComponent\\SangforNspX64.dll",
+        "C:\\Windows\\System32\\rasadhlp.dll",
+        "C:\\Windows\\System32\\fwpuclnt.dll",
+        "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\conpty.node",
+        "C:\\Windows\\system32\\napinsp.dll",
+        "C:\\Windows\\System32\\winrnr.dll",
+        "C:\\Windows\\system32\\nlansp_c.dll",
+        "C:\\Windows\\system32\\wshbth.dll"
+      ]
+    }
+    
+  ],
+  "sharedObjects": [
+    "C:\\Users\\ZHAOKAI\\AppData\\Local\\Microsoft\\WinGet\\Packages\\GitHub.Copilot_Microsoft.Winget.Source_8wekyb3d8bbwe\\copilot.exe",
+    "C:\\Windows\\SYSTEM32\\ntdll.dll",
+    "C:\\Windows\\System32\\KERNEL32.DLL",
+    "C:\\Windows\\System32\\KERNELBASE.dll",
+    "C:\\Windows\\System32\\CRYPT32.dll",
+    "C:\\Windows\\System32\\ucrtbase.dll",
+    "C:\\Windows\\System32\\WS2_32.dll",
+    "C:\\Windows\\System32\\RPCRT4.dll",
+    "C:\\Windows\\System32\\USER32.dll",
+    "C:\\Windows\\System32\\win32u.dll",
+    "C:\\Windows\\System32\\GDI32.dll",
+    "C:\\Windows\\System32\\gdi32full.dll",
+    "C:\\Windows\\System32\\msvcp_win.dll",
+    "C:\\Windows\\System32\\ADVAPI32.dll",
+    "C:\\Windows\\System32\\msvcrt.dll",
+    "C:\\Windows\\System32\\sechost.dll",
+    "C:\\Windows\\System32\\SHELL32.dll",
+    "C:\\Windows\\SYSTEM32\\dbghelp.dll",
+    "C:\\Windows\\System32\\combase.dll",
+    "C:\\Windows\\System32\\wintypes.dll",
+    "C:\\Windows\\System32\\OLEAUT32.dll",
+    "C:\\Windows\\System32\\ole32.dll",
+    "C:\\Windows\\SYSTEM32\\IPHLPAPI.DLL",
+    "C:\\Windows\\SYSTEM32\\WINMM.dll",
+    "C:\\Windows\\SYSTEM32\\USERENV.dll",
+    "C:\\Windows\\SYSTEM32\\dbgcore.DLL",
+    "C:\\Windows\\SYSTEM32\\CRYPTBASE.DLL",
+    "C:\\Windows\\System32\\IMM32.DLL",
+    "C:\\Windows\\SYSTEM32\\powrprof.dll",
+    "C:\\Windows\\SYSTEM32\\UMPDC.dll",
+    "C:\\Windows\\system32\\uxtheme.dll",
+    "C:\\Program Files (x86)\\Sangfor\\SSL\\ClientComponent\\SangforTcpX64.dll",
+    "C:\\Windows\\System32\\SHLWAPI.dll",
+    "C:\\Windows\\System32\\Windows.Storage.dll",
+    "C:\\Windows\\System32\\PSAPI.DLL",
+    "C:\\Windows\\System32\\WINTRUST.dll",
+    "C:\\Windows\\SYSTEM32\\VERSION.dll",
+    "C:\\Windows\\SYSTEM32\\MSASN1.dll",
+    "C:\\Windows\\system32\\mswsock.dll",
+    "C:\\Windows\\SYSTEM32\\CRYPTSP.dll",
+    "C:\\Windows\\system32\\rsaenh.dll",
+    "C:\\Windows\\System32\\bcryptPrimitives.dll",
+    "C:\\Windows\\SYSTEM32\\kernel.appcore.dll",
+    "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\koffi\\build\\koffi\\win32_x64\\koffi.node",
+    "C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\win32_native.dll",
+    "C:\\Windows\\SYSTEM32\\VCRUNTIME140.dll",
+    "C:\\Windows\\System32\\NSI.dll",
+    "C:\\Windows\\SYSTEM32\\dhcpcsvc6.DLL",
+    "C:\\Windows\\SYSTEM32\\dhcpcsvc.DLL",
+    "C:\\Windows\\SYSTEM32\\DNSAPI.dll",
+    "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\keytar.node",
+    "C:\\Program Files (x86)\\Sangfor\\SSL\\ClientComponent\\SangforNspX64.dll",
+    "C:\\Windows\\System32\\rasadhlp.dll",
+    "C:\\Windows\\System32\\fwpuclnt.dll",
+    "\\\\?\\C:\\Users\\ZHAOKAI\\.copilot\\pkg\\universal\\1.0.44\\prebuilds\\win32-x64\\conpty.node",
+    "C:\\Windows\\system32\\napinsp.dll",
+    "C:\\Windows\\System32\\winrnr.dll",
+    "C:\\Windows\\system32\\nlansp_c.dll",
+    "C:\\Windows\\system32\\wshbth.dll"
+  ]
+}

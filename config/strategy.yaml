@@ -1,0 +1,62 @@
+# ══════════════════════════════════════
+#  Poly Backtest — 策略参数
+# ══════════════════════════════════════
+
+# 策略模式
+strategy_mode: "classic"    # classic | trend_breakout
+
+# 核心参数
+entry_price: 0.25
+profit_price: 0.26
+trade_shares: 200
+initial_capital: 600
+
+# 趋势突破策略
+trend_side: "both"          # up | down | both
+trend_entry_price: 0.60
+trend_profit_price: 0.80
+trend_stop_price: 0.50
+
+# ER / Hurst 因子分析
+er_filter_enabled: false
+er_window_seconds: 30
+er_min: 0.0
+er_max: 1.0
+hurst_filter_enabled: false
+hurst_window_seconds: 60
+hurst_min: 0.0
+hurst_max: 1.0
+
+# 风控模块开关
+polarity_filter_enabled: false
+curfew_enabled: true
+data_gap_check_enabled: false
+entry_timeout_enabled: false
+sell_timeout_enabled: true
+time_stop_enabled: true
+btc_guard_enabled: true
+btc_stoploss_enabled: false
+weekday_filter_enabled: false
+weekday_mode: "all"         # all | weekdays | weekends
+atr_filter_enabled: false
+
+# 风控阈值
+polarity_max: 0.35
+polarity_delay: 2
+btc_diff_max: 50
+btc_diff_stoploss: 80
+round_duration: 300
+entry_window_start: 0
+entry_window_end: 90
+sell_window_start: 0
+sell_window_end: 180
+time_stop_after_entry: 30
+settle_wait: 300
+cooldown: 8
+gap_threshold: 7
+curfew_hours: [20]
+
+# 回测专用
+backtest_fill_model: "trader_bot_paper"
+sell_fill_model: "trader_bot_paper"
+timeout_slippage: 0           # 强制退出 (超时/止损) 滑点比例, 如 0.01 = 1%

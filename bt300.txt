@@ -1,0 +1,9 @@
+Rounds:300 Trades:163 PnL:244.00
+  profit: 111
+  time_stop: 29
+  timeout: 23
+  NA: NA
+Sides: down=79 up=84 NA=NA
+Skips: btc_guard=125 curfew=12 NA=NA
+Avg entry:0.2500 Avg exit:0.2575
+Win rate:68.1%

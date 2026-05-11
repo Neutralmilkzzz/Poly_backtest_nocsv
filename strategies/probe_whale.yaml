@@ -1,0 +1,67 @@
+# ══════════════════════════════════════
+#  探针-跟庄系统 — 策略参数
+# ══════════════════════════════════════
+
+# ── 通用基础参数 (探针共用) ──────────
+round_duration: 300
+polarity_filter_enabled: false
+curfew_enabled: false
+data_gap_check_enabled: false
+entry_timeout_enabled: true
+sell_timeout_enabled: true
+time_stop_enabled: true
+btc_guard_enabled: false
+btc_stoploss_enabled: false
+weekday_filter_enabled: false
+er_filter_enabled: false
+hurst_filter_enabled: false
+
+backtest_fill_model: "trader_bot_paper"
+sell_fill_model: "trader_bot_paper"
+timeout_slippage: 0
+settle_wait: 300
+cooldown: 8
+gap_threshold: 7
+
+# ── 网格探针 ──────────────────────────
+probes:
+  grid:
+    trade_shares: 10
+    entry_price: 0.25
+    profit_price: 0.26
+    entry_window_start: 0
+    entry_window_end: 90
+    btc_guard_enabled: false
+    curfew_enabled: false
+  tail:
+    strategy_mode: "trend_breakout"
+    trade_shares: 10
+    trend_side: "both"
+    trend_entry_price: 0.60
+    trend_profit_price: 0.80
+    trend_stop_price: 0.50
+    entry_window_start: 240
+    entry_window_end: 280
+    sell_window_start: 240
+    sell_window_end: 300
+    btc_guard_enabled: false
+    curfew_enabled: false
+
+# ── Regime 检测器 (微结构信号) ──────
+regime:
+  window_size: 20              # 滑动窗口大小 (轮数)
+  tail_start: 240              # 尾盘起始秒数
+  spread_start: 270            # spread 统计起始秒数
+  range_threshold: 0.50        # 尾盘 range >= 此值 → 本轮为 whale 信号
+  whale_count: 7               # 窗口内 whale 信号 >= 此数 → WHALE_ACTIVE
+  normal_count: 3              # 窗口内 whale 信号 <= 此数 → 恢复 NORMAL
+
+# ── 跟庄策略 ─────────────────────────
+whale:
+  cheap_threshold: 0.15        # ask ≤ 此值视为"便宜端"
+  cheap_take_profit: 0.40      # 便宜端止盈价 (4x)
+  cheap_budget: 10             # 便宜端预算 ($)
+  expensive_threshold: 0.80    # bid ≥ 此值视为"贵端"
+  dip_buy_price: 0.65          # 贵端限价接盘价
+  dip_take_profit: 0.85        # 贵端止盈价
+  expensive_budget: 10         # 贵端预算 ($)

@@ -1,0 +1,3 @@
+# Python dependencies only. R package dependencies are listed in requirements-r.txt.
+aiohttp
+PyYAML

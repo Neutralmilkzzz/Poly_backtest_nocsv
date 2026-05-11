@@ -1,0 +1,25 @@
+{
+  "question": "How calibrated and accurate are Polymarket implied probabilities?",
+  "data_dir": "C:\\Users\\ZHAOKAI\\Poly_backtest_Final\\data",
+  "checkpoints": [
+    30,
+    60,
+    90,
+    120,
+    180,
+    240,
+    270
+  ],
+  "bin_size": 0.05,
+  "total_csv_files_seen": 200,
+  "skipped_rounds": 15,
+  "overall": {
+    "rows": 1295,
+    "rounds": 185,
+    "accuracy": 0.7336,
+    "mean_brier": 0.171038,
+    "mean_log_loss": 0.505811,
+    "mean_abs_error": 0.351275,
+    "mean_overround": 0.004056
+  }
+}
