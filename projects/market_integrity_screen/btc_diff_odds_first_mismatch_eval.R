@@ -1,27 +1,15 @@
-# btc_diff_odds_mismatch_eval.R
+# btc_diff_odds_first_mismatch_eval.R
 # ------------------------------------------------------------
-# 统计多个 checkpoint 上，btc_diff 方向与盘口方向的四种组合：
-# - btc_up__odds_up
-# - btc_up__odds_down
-# - btc_down__odds_down
-# - btc_down__odds_up
-# 并比较每一桶的买入概率（盘口高侧的 implied probability）和实际胜率。
+# 从开盘开始逐 tick 扫描，抓“第一次出现 btc_diff 方向与盘口明显相反”的时刻。
 #
-# 默认口径：
-# - checkpoint_seconds = 30,60,90,120,150,180,210,240,270
-# - odds_edge = 0.05  （至少偏离 0.5 五个点）
-# - btc_diff 直接取该 checkpoint 之前最后一个非 NA 值
+# 条件：
+# - btc_diff > 0 且 up_midpoint <= 0.5 - odds_edge  -> btc_up__odds_down
+# - btc_diff < 0 且 up_midpoint >= 0.5 + odds_edge  -> btc_down__odds_up
 #
-# 输出：
-# - classified_rounds.csv
-# - overall_summary.csv
-# - bucket_summary.csv
-# - alignment_summary.csv
-# - mismatch_type_summary.csv
-# - skipped_rounds.csv
+# 记录该第一次 mismatch 出现的时间、盘口、btc_diff 和最终赢家，
+# 然后统计到底是 BTC 方向更准，还是当时盘口更高的一侧更准。
 # ------------------------------------------------------------
 
-DEFAULT_CHECKPOINT_SECONDS <- c(30, 60, 90, 120, 150, 180, 210, 240, 270)
 DEFAULT_ODDS_EDGE <- 0.05
 
 get_script_dir <- function() {
@@ -93,14 +81,13 @@ resolve_output_dir <- function(explicit_dir = NULL) {
   if (!is.null(explicit_dir)) {
     return(normalizePath(explicit_dir, winslash = "/", mustWork = FALSE))
   }
-  file.path(get_script_dir(), "artifacts", "btc_diff_odds_mismatch")
+  file.path(get_script_dir(), "artifacts", "btc_diff_odds_first_mismatch")
 }
 
 parse_args <- function(args) {
   opts <- list(
     data_dir = NULL,
     n = NULL,
-    checkpoint_seconds = DEFAULT_CHECKPOINT_SECONDS,
     odds_edge = DEFAULT_ODDS_EDGE,
     output_dir = NULL,
     cores = NULL,
@@ -118,11 +105,6 @@ parse_args <- function(args) {
     }
     if (arg == "--n" && i < length(args)) {
       opts$n <- as.integer(args[i + 1L])
-      i <- i + 2L
-      next
-    }
-    if (arg == "--checkpoint-seconds" && i < length(args)) {
-      opts$checkpoint_seconds <- as.numeric(trimws(unlist(strsplit(args[i + 1L], ",", fixed = TRUE))))
       i <- i + 2L
       next
     }
@@ -197,17 +179,6 @@ parse_timestamp_vector <- function(x) {
   result
 }
 
-last_value_before <- function(df, column, checkpoint_seconds) {
-  if (!(column %in% names(df))) {
-    return(NA_real_)
-  }
-  idx <- which(df$elapsed <= checkpoint_seconds & !is.na(df[[column]]))
-  if (length(idx) == 0L) {
-    return(NA_real_)
-  }
-  tail(df[[column]][idx], 1)
-}
-
 determine_settlement_side <- function(df) {
   windows <- list(c(285, 298), c(240, 285))
   for (w in windows) {
@@ -226,30 +197,32 @@ determine_settlement_side <- function(df) {
   NA_character_
 }
 
-classify_btc_direction <- function(btc_diff_value) {
-  if (is.na(btc_diff_value) || btc_diff_value == 0) {
-    return(NA_character_)
+classify_first_mismatch <- function(df, odds_edge) {
+  valid <- !is.na(df$btc_diff) & !is.na(df$up_midpoint)
+  if (!any(valid)) {
+    return(NULL)
   }
-  if (btc_diff_value > 0) {
-    return("up")
+
+  idx <- which(valid)
+  for (i in idx) {
+    btc_diff_value <- suppressWarnings(as.numeric(df$btc_diff[i]))
+    up_mid <- suppressWarnings(as.numeric(df$up_midpoint[i]))
+    if (is.na(btc_diff_value) || is.na(up_mid) || btc_diff_value == 0) {
+      next
+    }
+
+    if (btc_diff_value > 0 && up_mid <= 0.5 - odds_edge) {
+      return(list(index = i, btc_direction = "up", odds_direction = "down"))
+    }
+    if (btc_diff_value < 0 && up_mid >= 0.5 + odds_edge) {
+      return(list(index = i, btc_direction = "down", odds_direction = "up"))
+    }
   }
-  "down"
+
+  NULL
 }
 
-classify_odds_direction <- function(up_midpoint_value, odds_edge) {
-  if (is.na(up_midpoint_value)) {
-    return(NA_character_)
-  }
-  if (up_midpoint_value >= 0.5 + odds_edge) {
-    return("up")
-  }
-  if (up_midpoint_value <= 0.5 - odds_edge) {
-    return("down")
-  }
-  NA_character_
-}
-
-analyze_one_file <- function(csv_path, checkpoint_seconds, odds_edge, min_rows) {
+analyze_one_file <- function(csv_path, odds_edge, min_rows) {
   raw_df <- tryCatch(
     fast_read_csv(csv_path),
     error = function(e) NULL
@@ -278,63 +251,40 @@ analyze_one_file <- function(csv_path, checkpoint_seconds, odds_edge, min_rows) 
   }
 
   raw_df$elapsed <- as.numeric(difftime(raw_df$timestamp, raw_df$timestamp[1], units = "secs"))
-  max_elapsed <- max(raw_df$elapsed, na.rm = TRUE)
-  min_checkpoint <- min(checkpoint_seconds, na.rm = TRUE)
-  if (max_elapsed < min_checkpoint) {
-    return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "round_too_short", stringsAsFactors = FALSE)))
-  }
-
   settlement_side <- determine_settlement_side(raw_df)
   if (is.na(settlement_side)) {
     return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "missing_settlement_label", stringsAsFactors = FALSE)))
   }
 
-  rows <- lapply(checkpoint_seconds, function(cp) {
-    if (max_elapsed < cp) {
-      return(NULL)
-    }
-
-    btc_diff_at_checkpoint <- last_value_before(raw_df, "btc_diff", cp)
-    up_mid_at_checkpoint <- last_value_before(raw_df, "up_midpoint", cp)
-    down_mid_at_checkpoint <- if ("down_midpoint" %in% names(raw_df)) last_value_before(raw_df, "down_midpoint", cp) else 1 - up_mid_at_checkpoint
-
-    btc_direction <- classify_btc_direction(btc_diff_at_checkpoint)
-    odds_direction <- classify_odds_direction(up_mid_at_checkpoint, odds_edge)
-    if (is.na(btc_direction) || is.na(odds_direction)) {
-      return(NULL)
-    }
-
-    bucket_type <- paste0("btc_", btc_direction, "__odds_", odds_direction)
-    odds_side_prob <- if (identical(odds_direction, "up")) up_mid_at_checkpoint else down_mid_at_checkpoint
-    data.frame(
-      round_id = tools::file_path_sans_ext(basename(csv_path)),
-      round_file = basename(csv_path),
-      checkpoint_seconds = cp,
-      odds_edge = odds_edge,
-      btc_diff_at_checkpoint = btc_diff_at_checkpoint,
-      btc_direction = btc_direction,
-      up_mid_at_checkpoint = up_mid_at_checkpoint,
-      down_mid_at_checkpoint = down_mid_at_checkpoint,
-      odds_direction = odds_direction,
-      bucket_type = bucket_type,
-      relation = if (identical(btc_direction, odds_direction)) "aligned" else "mismatch",
-      odds_side_prob = odds_side_prob,
-      final_winner = settlement_side,
-      btc_side_won = as.integer(settlement_side == btc_direction),
-      odds_side_won = as.integer(settlement_side == odds_direction),
-      stringsAsFactors = FALSE
-    )
-  })
-
-  rows <- rows[!vapply(rows, is.null, logical(1))]
-  if (length(rows) == 0L) {
-    return(list(
-      row = NULL,
-      skipped = data.frame(round_file = basename(csv_path), reason = "no_strong_bucket", stringsAsFactors = FALSE)
-    ))
+  first_mismatch <- classify_first_mismatch(raw_df, odds_edge = odds_edge)
+  if (is.null(first_mismatch)) {
+    return(list(row = NULL, skipped = data.frame(round_file = basename(csv_path), reason = "no_first_mismatch", stringsAsFactors = FALSE)))
   }
 
-  list(row = do.call(rbind, rows), skipped = NULL)
+  i <- first_mismatch$index
+  up_mid <- raw_df$up_midpoint[i]
+  down_mid <- if ("down_midpoint" %in% names(raw_df) && !is.na(raw_df$down_midpoint[i])) raw_df$down_midpoint[i] else 1 - up_mid
+  mismatch_type <- paste0("btc_", first_mismatch$btc_direction, "__odds_", first_mismatch$odds_direction)
+
+  row <- data.frame(
+    round_id = tools::file_path_sans_ext(basename(csv_path)),
+    round_file = basename(csv_path),
+    odds_edge = odds_edge,
+    first_mismatch_timestamp_utc = format(raw_df$timestamp[i], tz = "UTC", usetz = TRUE),
+    first_mismatch_elapsed = as.numeric(raw_df$elapsed[i]),
+    btc_diff_at_first_mismatch = raw_df$btc_diff[i],
+    btc_direction = first_mismatch$btc_direction,
+    up_mid_at_first_mismatch = up_mid,
+    down_mid_at_first_mismatch = down_mid,
+    odds_direction = first_mismatch$odds_direction,
+    mismatch_type = mismatch_type,
+    final_winner = settlement_side,
+    btc_side_won = as.integer(settlement_side == first_mismatch$btc_direction),
+    odds_side_won = as.integer(settlement_side == first_mismatch$odds_direction),
+    stringsAsFactors = FALSE
+  )
+
+  list(row = row, skipped = NULL)
 }
 
 bind_rows_safe <- function(dfs) {
@@ -362,69 +312,12 @@ summarize_alignment <- function(df) {
   )
 }
 
-summarize_overall_by_checkpoint <- function(df, checkpoint_seconds) {
-  rows <- lapply(checkpoint_seconds, function(cp) {
-    part <- df[df$checkpoint_seconds == cp, , drop = FALSE]
-    data.frame(
-      checkpoint_seconds = cp,
-      rounds = nrow(part),
-      mismatch_rounds = sum(part$relation == "mismatch", na.rm = TRUE),
-      aligned_rounds = sum(part$relation == "aligned", na.rm = TRUE),
-      btc_side_wins = sum(part$btc_side_won, na.rm = TRUE),
-      odds_side_wins = sum(part$odds_side_won, na.rm = TRUE),
-      btc_side_win_rate = if (nrow(part) > 0) mean(part$btc_side_won, na.rm = TRUE) else NA_real_,
-      odds_side_win_rate = if (nrow(part) > 0) mean(part$odds_side_won, na.rm = TRUE) else NA_real_,
-      stringsAsFactors = FALSE
-    )
-  })
-  do.call(rbind, rows)
-}
-
-summarize_bucket_types_by_checkpoint <- function(df, checkpoint_seconds) {
-  bucket_order <- c("btc_up__odds_up", "btc_up__odds_down", "btc_down__odds_down", "btc_down__odds_up")
-  rows <- lapply(checkpoint_seconds, function(cp) {
-    lapply(bucket_order, function(bucket_name) {
-      part <- df[df$checkpoint_seconds == cp & df$bucket_type == bucket_name, , drop = FALSE]
-      data.frame(
-        checkpoint_seconds = cp,
-        bucket_type = bucket_name,
-        relation = if (grepl("btc_up__odds_up|btc_down__odds_down", bucket_name)) "aligned" else "mismatch",
-        rounds = nrow(part),
-        avg_odds_side_prob = if (nrow(part) > 0) mean(part$odds_side_prob, na.rm = TRUE) else NA_real_,
-        actual_odds_side_win_rate = if (nrow(part) > 0) mean(part$odds_side_won, na.rm = TRUE) else NA_real_,
-        calibration_gap = if (nrow(part) > 0) mean(part$odds_side_prob, na.rm = TRUE) - mean(part$odds_side_won, na.rm = TRUE) else NA_real_,
-        btc_side_win_rate = if (nrow(part) > 0) mean(part$btc_side_won, na.rm = TRUE) else NA_real_,
-        stringsAsFactors = FALSE
-      )
-    })
-  })
-  do.call(rbind, unlist(rows, recursive = FALSE))
-}
-
-summarize_alignment_by_checkpoint <- function(df, checkpoint_seconds) {
-  rows <- lapply(checkpoint_seconds, function(cp) {
-    part <- df[df$checkpoint_seconds == cp, , drop = FALSE]
-    if (nrow(part) == 0L) {
-      return(data.frame(
-        checkpoint_seconds = cp,
-        side = c("btc_side", "odds_side"),
-        wins = c(0L, 0L),
-        share = c(NA_real_, NA_real_),
-        stringsAsFactors = FALSE
-      ))
-    }
-    out <- summarize_alignment(part)
-    out$checkpoint_seconds <- cp
-    out[, c("checkpoint_seconds", "side", "wins", "share"), drop = FALSE]
-  })
-  do.call(rbind, rows)
-}
-
 summarize_mismatch_types <- function(df) {
   if (nrow(df) == 0L) {
     return(data.frame(
       mismatch_type = character(0),
       rounds = integer(0),
+      mean_first_mismatch_elapsed = numeric(0),
       btc_side_wins = integer(0),
       odds_side_wins = integer(0),
       btc_side_win_rate = numeric(0),
@@ -433,23 +326,13 @@ summarize_mismatch_types <- function(df) {
     ))
   }
 
-  split_rows <- split(df[df$relation == "mismatch", , drop = FALSE], df[df$relation == "mismatch", , drop = FALSE]$bucket_type)
-  if (length(split_rows) == 0L) {
-    return(data.frame(
-      mismatch_type = character(0),
-      rounds = integer(0),
-      btc_side_wins = integer(0),
-      odds_side_wins = integer(0),
-      btc_side_win_rate = numeric(0),
-      odds_side_win_rate = numeric(0),
-      stringsAsFactors = FALSE
-    ))
-  }
+  split_rows <- split(df, df$mismatch_type)
   pieces <- lapply(names(split_rows), function(type_name) {
     chunk <- split_rows[[type_name]]
     data.frame(
       mismatch_type = type_name,
       rounds = nrow(chunk),
+      mean_first_mismatch_elapsed = mean(chunk$first_mismatch_elapsed, na.rm = TRUE),
       btc_side_wins = sum(chunk$btc_side_won, na.rm = TRUE),
       odds_side_wins = sum(chunk$odds_side_won, na.rm = TRUE),
       btc_side_win_rate = mean(chunk$btc_side_won, na.rm = TRUE),
@@ -461,36 +344,9 @@ summarize_mismatch_types <- function(df) {
   out[order(out$rounds, decreasing = TRUE), , drop = FALSE]
 }
 
-summarize_mismatch_types_by_checkpoint <- function(df, checkpoint_seconds) {
-  rows <- lapply(checkpoint_seconds, function(cp) {
-    part <- df[df$checkpoint_seconds == cp, , drop = FALSE]
-    if (nrow(part) == 0L) {
-      return(NULL)
-    }
-    out <- summarize_mismatch_types(part)
-    out$checkpoint_seconds <- cp
-    out[, c("checkpoint_seconds", "mismatch_type", "rounds", "btc_side_wins", "odds_side_wins", "btc_side_win_rate", "odds_side_win_rate"), drop = FALSE]
-  })
-  rows <- rows[!vapply(rows, is.null, logical(1))]
-  if (length(rows) == 0L) {
-    return(data.frame(
-      checkpoint_seconds = numeric(0),
-      mismatch_type = character(0),
-      rounds = integer(0),
-      btc_side_wins = integer(0),
-      odds_side_wins = integer(0),
-      btc_side_win_rate = numeric(0),
-      odds_side_win_rate = numeric(0),
-      stringsAsFactors = FALSE
-    ))
-  }
-  do.call(rbind, rows)
-}
-
 main <- function(
   data_dir = NULL,
   n = NULL,
-  checkpoint_seconds = DEFAULT_CHECKPOINT_SECONDS,
   odds_edge = DEFAULT_ODDS_EDGE,
   output_dir = NULL,
   cores = NULL,
@@ -499,17 +355,10 @@ main <- function(
   opts <- parse_args(commandArgs(trailingOnly = TRUE))
   if (is.null(data_dir)) data_dir <- opts$data_dir
   if (is.null(n)) n <- opts$n
-  if (missing(checkpoint_seconds) || is.null(checkpoint_seconds)) checkpoint_seconds <- opts$checkpoint_seconds
   if (missing(odds_edge) || is.null(odds_edge)) odds_edge <- opts$odds_edge
   if (is.null(output_dir)) output_dir <- opts$output_dir
   if (is.null(cores)) cores <- opts$cores
   if (missing(min_rows) || is.null(min_rows)) min_rows <- opts$min_rows
-
-  checkpoint_seconds <- sort(unique(as.numeric(checkpoint_seconds)))
-  checkpoint_seconds <- checkpoint_seconds[!is.na(checkpoint_seconds)]
-  if (length(checkpoint_seconds) == 0L) {
-    stop("checkpoint_seconds must contain at least one valid numeric value.")
-  }
 
   data_dir <- resolve_data_dir(data_dir)
   output_dir <- resolve_output_dir(output_dir)
@@ -532,33 +381,37 @@ main <- function(
   results <- parallel_map(
     selected_files,
     analyze_one_file,
-    checkpoint_seconds = checkpoint_seconds,
     odds_edge = odds_edge,
     min_rows = min_rows,
     cores = use_cores
   )
 
-  classified_rounds <- bind_rows_safe(lapply(results, `[[`, "row"))
+  mismatch_rounds <- bind_rows_safe(lapply(results, `[[`, "row"))
   skipped_df <- bind_rows_safe(lapply(results, `[[`, "skipped"))
-  if (is.null(classified_rounds) || nrow(classified_rounds) == 0L) {
-    stop("No classified rounds found under the current settings.")
+  if (is.null(mismatch_rounds) || nrow(mismatch_rounds) == 0L) {
+    stop("No first-mismatch rounds found under the current settings.")
   }
 
-  overall_summary <- summarize_overall_by_checkpoint(classified_rounds, checkpoint_seconds)
-  bucket_summary <- summarize_bucket_types_by_checkpoint(classified_rounds, checkpoint_seconds)
-  alignment_summary <- summarize_alignment_by_checkpoint(classified_rounds, checkpoint_seconds)
-  mismatch_type_summary <- summarize_mismatch_types_by_checkpoint(classified_rounds, checkpoint_seconds)
+  overall_summary <- data.frame(
+    rounds = nrow(mismatch_rounds),
+    mean_first_mismatch_elapsed = mean(mismatch_rounds$first_mismatch_elapsed, na.rm = TRUE),
+    btc_side_wins = sum(mismatch_rounds$btc_side_won, na.rm = TRUE),
+    odds_side_wins = sum(mismatch_rounds$odds_side_won, na.rm = TRUE),
+    btc_side_win_rate = mean(mismatch_rounds$btc_side_won, na.rm = TRUE),
+    odds_side_win_rate = mean(mismatch_rounds$odds_side_won, na.rm = TRUE),
+    stringsAsFactors = FALSE
+  )
+  alignment_summary <- summarize_alignment(mismatch_rounds)
+  mismatch_type_summary <- summarize_mismatch_types(mismatch_rounds)
 
-  classified_path <- file.path(output_dir, "classified_rounds.csv")
+  mismatch_path <- file.path(output_dir, "first_mismatch_rounds.csv")
   overall_path <- file.path(output_dir, "overall_summary.csv")
-  bucket_path <- file.path(output_dir, "bucket_summary.csv")
   alignment_path <- file.path(output_dir, "alignment_summary.csv")
   mismatch_type_path <- file.path(output_dir, "mismatch_type_summary.csv")
   skipped_path <- file.path(output_dir, "skipped_rounds.csv")
 
-  write.csv(classified_rounds, classified_path, row.names = FALSE, na = "")
+  write.csv(mismatch_rounds, mismatch_path, row.names = FALSE, na = "")
   write.csv(overall_summary, overall_path, row.names = FALSE, na = "")
-  write.csv(bucket_summary, bucket_path, row.names = FALSE, na = "")
   write.csv(alignment_summary, alignment_path, row.names = FALSE, na = "")
   write.csv(mismatch_type_summary, mismatch_type_path, row.names = FALSE, na = "")
   write.csv(if (is.null(skipped_df)) data.frame() else skipped_df, skipped_path, row.names = FALSE, na = "")
@@ -566,29 +419,24 @@ main <- function(
   cat("Data dir:", data_dir, "\n")
   cat("Files used:", length(selected_files), "\n")
   cat("Worker processes:", use_cores, "\n")
-  cat("Checkpoint seconds:", paste(checkpoint_seconds, collapse = ", "), "\n")
   cat("Odds edge:", odds_edge, "\n\n")
 
   cat("Overall summary:\n")
   print(overall_summary, row.names = FALSE)
-  cat("\nBucket summary:\n")
-  print(bucket_summary, row.names = FALSE)
   cat("\nAlignment summary:\n")
   print(alignment_summary, row.names = FALSE)
   cat("\nMismatch-type summary:\n")
   print(mismatch_type_summary, row.names = FALSE)
 
-  cat("\nWrote:", classified_path, "\n")
+  cat("\nWrote:", mismatch_path, "\n")
   cat("Wrote:", overall_path, "\n")
-  cat("Wrote:", bucket_path, "\n")
   cat("Wrote:", alignment_path, "\n")
   cat("Wrote:", mismatch_type_path, "\n")
   cat("Wrote:", skipped_path, "\n")
 
   invisible(list(
-    classified_rounds = classified_rounds,
+    mismatch_rounds = mismatch_rounds,
     overall_summary = overall_summary,
-    bucket_summary = bucket_summary,
     alignment_summary = alignment_summary,
     mismatch_type_summary = mismatch_type_summary,
     skipped = skipped_df
